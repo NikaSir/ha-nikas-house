@@ -1,0 +1,36 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.venv/
+venv/
+
+# Generated/build output
+build/
+dist/
+!custom_components/nikas_house/frontend/dist/
+!custom_components/nikas_house/frontend/dist/*.js
+.generated/
+
+# Local Home Assistant data and exports
+.storage/
+config/.storage/
+secrets.yaml
+*.db
+home-assistant_v2.db*
+
+# Environment and credentials
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.p12
+
+# Editors / OS
+.DS_Store
+.idea/
+.vscode/

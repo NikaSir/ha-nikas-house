@@ -1,0 +1,407 @@
+api_version: nikas.home-assistant/ui-contract/v1
+kind: UIContract
+metadata: {id: house.home, title: Дом, version: 0.1.0}
+spec:
+  roles:
+    safety_01: &sa {label: Безопасность, description: Verified main-panel role., required: true, allowed_domains: [binary_sensor]}
+    safety_02: {<<: *sa}
+    safety_03: {<<: *sa}
+    safety_04: {<<: *sa}
+    safety_05: {<<: *sa}
+    opening_01: &op {label: Открытие, description: Verified main-panel role., required: true, allowed_domains: [binary_sensor]}
+    opening_02: {<<: *op}
+    opening_03: {<<: *op}
+    opening_04: {<<: *op}
+    opening_05: {<<: *op}
+    opening_06: {<<: *op}
+    opening_07: {<<: *op}
+    opening_08: {<<: *op}
+    opening_09: {<<: *op}
+    opening_10: {<<: *op}
+    opening_11: {<<: *op}
+    opening_12: {<<: *op}
+    opening_13: {<<: *op}
+    opening_14: {<<: *op}
+    opening_15: {<<: *op}
+    opening_16: {<<: *op}
+    opening_17: {<<: *op}
+    opening_18: {<<: *op}
+    opening_19: {<<: *op}
+    opening_20: {<<: *op}
+    opening_21: {<<: *op}
+    opening_22: {<<: *op}
+    opening_23: {<<: *op}
+    opening_24: {<<: *op}
+    opening_25: {<<: *op}
+    opening_26: {<<: *op}
+    opening_27: {<<: *op}
+    opening_28: {<<: *op}
+    opening_29: {<<: *op}
+    opening_30: {<<: *op}
+    motion_01: &mo {label: Движение, description: Verified main-panel role., required: true, allowed_domains: [binary_sensor]}
+    motion_02: {<<: *mo}
+    motion_03: {<<: *mo}
+    motion_04: {<<: *mo}
+    motion_05: {<<: *mo}
+    motion_06: {<<: *mo}
+    motion_07: {<<: *mo}
+    motion_08: {<<: *mo}
+    motion_09: {<<: *mo}
+    motion_10: {<<: *mo}
+    motion_11: {<<: *mo}
+    motion_12: {<<: *mo}
+    motion_13: {<<: *mo}
+    motion_14: {<<: *mo}
+    motion_15: {<<: *mo}
+    motion_16: {<<: *mo}
+    motion_17: {<<: *mo}
+    motion_18: {<<: *mo}
+    motion_19: {<<: *mo}
+    motion_20: {<<: *mo}
+    motion_21: {<<: *mo}
+    motion_22: {<<: *mo}
+    light_01: &lt {label: Свет, description: Verified main-panel role., required: true, allowed_domains: [light]}
+    light_02: {<<: *lt}
+    light_03: {<<: *lt}
+    light_04: {<<: *lt}
+    light_05: {<<: *lt}
+    light_06: {<<: *lt}
+    light_07: {<<: *lt}
+    light_08: {<<: *lt}
+    light_09: {<<: *lt}
+    light_10: {<<: *lt}
+    light_11: {<<: *lt}
+    light_12: {<<: *lt}
+    light_13: {<<: *lt}
+    light_14: {<<: *lt}
+    light_15: {<<: *lt}
+    light_16: {<<: *lt}
+    light_17: {<<: *lt}
+    light_18: {<<: *lt}
+    light_19: {<<: *lt}
+    light_20: {<<: *lt}
+    light_21: {<<: *lt}
+    light_22: {<<: *lt}
+    light_23: {<<: *lt}
+    light_24: {<<: *lt}
+    light_25: {<<: *lt}
+    light_26: {<<: *lt}
+    climate_01: &cl {label: Климат, description: Verified main-panel role., required: true, allowed_domains: [climate]}
+    climate_02: {<<: *cl}
+    climate_03: {<<: *cl}
+    climate_04: {<<: *cl}
+    climate_05: {<<: *cl}
+    climate_06: {<<: *cl}
+    climate_07: {<<: *cl}
+    climate_08: {<<: *cl}
+    climate_09: {<<: *cl}
+    climate_10: {<<: *cl}
+    climate_11: {<<: *cl}
+    climate_12: {<<: *cl}
+    climate_13: {<<: *cl}
+    camera_01: &cam {label: Камера, description: Verified main-panel role., required: true, allowed_domains: [camera]}
+    camera_02: {<<: *cam}
+    camera_03: {<<: *cam}
+    camera_04: {<<: *cam}
+    camera_05: {<<: *cam}
+    camera_06: {<<: *cam}
+    camera_07: {<<: *cam}
+    camera_08: {<<: *cam}
+    weather: &wx {label: Погода, description: Verified main-panel role., required: true, allowed_domains: [weather]}
+    power_a: &sn {label: Показатель, description: Verified main-panel role., required: true, allowed_domains: [sensor]}
+    power_b: {<<: *sn, label: Напряжение B после стабилизации}
+    power_c: {<<: *sn, label: Напряжение C после стабилизации}
+    water_drinking: {<<: *sn, label: Питьевая вода}
+    internet: &bs {label: Состояние, description: Verified main-panel role., required: true, allowed_domains: [binary_sensor]}
+    heating_radiators: {<<: *bs, label: Радиаторы}
+    heating_floor: {<<: *bs, label: Тёплый пол}
+    heating_circulation: {<<: *bs, label: Циркуляция ГВС}
+    heating_dhw: {<<: *sn, label: ГВС}
+    heating_main: {<<: *bs, label: Основной котёл}
+    heating_reserve: {<<: *bs, label: Резервный котёл}
+    heating_main_temp: {<<: *sn, label: Температура основного котла}
+    heating_reserve_temp: {<<: *sn, label: Температура резервного котла}
+    car_683_alarm: {<<: *bs, label: 683-й · сигнализация}
+    car_683_fuel: {<<: *sn, label: 683-й · топливо}
+    car_130_alarm: {<<: *bs, label: 130-й · сигнализация}
+    car_130_fuel: {<<: *sn, label: 130-й · топливо}
+    access_entrance: {<<: *bs, label: Входная дверь}
+    access_tambour: {<<: *bs, label: Тамбур}
+    access_garage: {<<: *bs, label: Дверь в гараж}
+    access_sectional: {<<: *bs, label: Секционные ворота}
+    access_veranda: {<<: *bs, label: Дверь на веранду}
+    access_garden: {<<: *bs, label: Дверь в сад}
+  states:
+    normal: {description: Фактическое штатное состояние., rules: []}
+    event: {description: Фактическое событие или отклонение., rules: []}
+    unreliable: {description: Источник unknown/unavailable либо недостоверен., rules: []}
+  actions:
+  - &mi {id: more_info_safety_01, kind: more_info, description: Открыть штатный more-info., role: safety_01}
+  - {<<: *mi, id: more_info_safety_02, role: safety_02}
+  - {<<: *mi, id: more_info_safety_03, role: safety_03}
+  - {<<: *mi, id: more_info_safety_04, role: safety_04}
+  - {<<: *mi, id: more_info_safety_05, role: safety_05}
+  - {<<: *mi, id: more_info_opening_01, role: opening_01}
+  - {<<: *mi, id: more_info_opening_02, role: opening_02}
+  - {<<: *mi, id: more_info_opening_03, role: opening_03}
+  - {<<: *mi, id: more_info_opening_04, role: opening_04}
+  - {<<: *mi, id: more_info_opening_05, role: opening_05}
+  - {<<: *mi, id: more_info_opening_06, role: opening_06}
+  - {<<: *mi, id: more_info_opening_07, role: opening_07}
+  - {<<: *mi, id: more_info_opening_08, role: opening_08}
+  - {<<: *mi, id: more_info_opening_09, role: opening_09}
+  - {<<: *mi, id: more_info_opening_10, role: opening_10}
+  - {<<: *mi, id: more_info_opening_11, role: opening_11}
+  - {<<: *mi, id: more_info_opening_12, role: opening_12}
+  - {<<: *mi, id: more_info_opening_13, role: opening_13}
+  - {<<: *mi, id: more_info_opening_14, role: opening_14}
+  - {<<: *mi, id: more_info_opening_15, role: opening_15}
+  - {<<: *mi, id: more_info_opening_16, role: opening_16}
+  - {<<: *mi, id: more_info_opening_17, role: opening_17}
+  - {<<: *mi, id: more_info_opening_18, role: opening_18}
+  - {<<: *mi, id: more_info_opening_19, role: opening_19}
+  - {<<: *mi, id: more_info_opening_20, role: opening_20}
+  - {<<: *mi, id: more_info_opening_21, role: opening_21}
+  - {<<: *mi, id: more_info_opening_22, role: opening_22}
+  - {<<: *mi, id: more_info_opening_23, role: opening_23}
+  - {<<: *mi, id: more_info_opening_24, role: opening_24}
+  - {<<: *mi, id: more_info_opening_25, role: opening_25}
+  - {<<: *mi, id: more_info_opening_26, role: opening_26}
+  - {<<: *mi, id: more_info_opening_27, role: opening_27}
+  - {<<: *mi, id: more_info_opening_28, role: opening_28}
+  - {<<: *mi, id: more_info_opening_29, role: opening_29}
+  - {<<: *mi, id: more_info_opening_30, role: opening_30}
+  - {<<: *mi, id: more_info_motion_01, role: motion_01}
+  - {<<: *mi, id: more_info_motion_02, role: motion_02}
+  - {<<: *mi, id: more_info_motion_03, role: motion_03}
+  - {<<: *mi, id: more_info_motion_04, role: motion_04}
+  - {<<: *mi, id: more_info_motion_05, role: motion_05}
+  - {<<: *mi, id: more_info_motion_06, role: motion_06}
+  - {<<: *mi, id: more_info_motion_07, role: motion_07}
+  - {<<: *mi, id: more_info_motion_08, role: motion_08}
+  - {<<: *mi, id: more_info_motion_09, role: motion_09}
+  - {<<: *mi, id: more_info_motion_10, role: motion_10}
+  - {<<: *mi, id: more_info_motion_11, role: motion_11}
+  - {<<: *mi, id: more_info_motion_12, role: motion_12}
+  - {<<: *mi, id: more_info_motion_13, role: motion_13}
+  - {<<: *mi, id: more_info_motion_14, role: motion_14}
+  - {<<: *mi, id: more_info_motion_15, role: motion_15}
+  - {<<: *mi, id: more_info_motion_16, role: motion_16}
+  - {<<: *mi, id: more_info_motion_17, role: motion_17}
+  - {<<: *mi, id: more_info_motion_18, role: motion_18}
+  - {<<: *mi, id: more_info_motion_19, role: motion_19}
+  - {<<: *mi, id: more_info_motion_20, role: motion_20}
+  - {<<: *mi, id: more_info_motion_21, role: motion_21}
+  - {<<: *mi, id: more_info_motion_22, role: motion_22}
+  - {<<: *mi, id: more_info_light_01, role: light_01}
+  - {<<: *mi, id: more_info_light_02, role: light_02}
+  - {<<: *mi, id: more_info_light_03, role: light_03}
+  - {<<: *mi, id: more_info_light_04, role: light_04}
+  - {<<: *mi, id: more_info_light_05, role: light_05}
+  - {<<: *mi, id: more_info_light_06, role: light_06}
+  - {<<: *mi, id: more_info_light_07, role: light_07}
+  - {<<: *mi, id: more_info_light_08, role: light_08}
+  - {<<: *mi, id: more_info_light_09, role: light_09}
+  - {<<: *mi, id: more_info_light_10, role: light_10}
+  - {<<: *mi, id: more_info_light_11, role: light_11}
+  - {<<: *mi, id: more_info_light_12, role: light_12}
+  - {<<: *mi, id: more_info_light_13, role: light_13}
+  - {<<: *mi, id: more_info_light_14, role: light_14}
+  - {<<: *mi, id: more_info_light_15, role: light_15}
+  - {<<: *mi, id: more_info_light_16, role: light_16}
+  - {<<: *mi, id: more_info_light_17, role: light_17}
+  - {<<: *mi, id: more_info_light_18, role: light_18}
+  - {<<: *mi, id: more_info_light_19, role: light_19}
+  - {<<: *mi, id: more_info_light_20, role: light_20}
+  - {<<: *mi, id: more_info_light_21, role: light_21}
+  - {<<: *mi, id: more_info_light_22, role: light_22}
+  - {<<: *mi, id: more_info_light_23, role: light_23}
+  - {<<: *mi, id: more_info_light_24, role: light_24}
+  - {<<: *mi, id: more_info_light_25, role: light_25}
+  - {<<: *mi, id: more_info_light_26, role: light_26}
+  - {<<: *mi, id: more_info_climate_01, role: climate_01}
+  - {<<: *mi, id: more_info_climate_02, role: climate_02}
+  - {<<: *mi, id: more_info_climate_03, role: climate_03}
+  - {<<: *mi, id: more_info_climate_04, role: climate_04}
+  - {<<: *mi, id: more_info_climate_05, role: climate_05}
+  - {<<: *mi, id: more_info_climate_06, role: climate_06}
+  - {<<: *mi, id: more_info_climate_07, role: climate_07}
+  - {<<: *mi, id: more_info_climate_08, role: climate_08}
+  - {<<: *mi, id: more_info_climate_09, role: climate_09}
+  - {<<: *mi, id: more_info_climate_10, role: climate_10}
+  - {<<: *mi, id: more_info_climate_11, role: climate_11}
+  - {<<: *mi, id: more_info_climate_12, role: climate_12}
+  - {<<: *mi, id: more_info_climate_13, role: climate_13}
+  - {<<: *mi, id: more_info_camera_01, role: camera_01}
+  - {<<: *mi, id: more_info_camera_02, role: camera_02}
+  - {<<: *mi, id: more_info_camera_03, role: camera_03}
+  - {<<: *mi, id: more_info_camera_04, role: camera_04}
+  - {<<: *mi, id: more_info_camera_05, role: camera_05}
+  - {<<: *mi, id: more_info_camera_06, role: camera_06}
+  - {<<: *mi, id: more_info_camera_07, role: camera_07}
+  - {<<: *mi, id: more_info_camera_08, role: camera_08}
+  - {<<: *mi, id: more_info_weather, role: weather}
+  - {<<: *mi, id: more_info_power_a, role: power_a}
+  - {<<: *mi, id: more_info_power_b, role: power_b}
+  - {<<: *mi, id: more_info_power_c, role: power_c}
+  - {<<: *mi, id: more_info_water_drinking, role: water_drinking}
+  - {<<: *mi, id: more_info_internet, role: internet}
+  - {<<: *mi, id: more_info_heating_radiators, role: heating_radiators}
+  - {<<: *mi, id: more_info_heating_floor, role: heating_floor}
+  - {<<: *mi, id: more_info_heating_circulation, role: heating_circulation}
+  - {<<: *mi, id: more_info_heating_dhw, role: heating_dhw}
+  - {<<: *mi, id: more_info_heating_main, role: heating_main}
+  - {<<: *mi, id: more_info_heating_reserve, role: heating_reserve}
+  - {<<: *mi, id: more_info_heating_main_temp, role: heating_main_temp}
+  - {<<: *mi, id: more_info_heating_reserve_temp, role: heating_reserve_temp}
+  - {<<: *mi, id: more_info_car_683_alarm, role: car_683_alarm}
+  - {<<: *mi, id: more_info_car_683_fuel, role: car_683_fuel}
+  - {<<: *mi, id: more_info_car_130_alarm, role: car_130_alarm}
+  - {<<: *mi, id: more_info_car_130_fuel, role: car_130_fuel}
+  - {<<: *mi, id: more_info_access_entrance, role: access_entrance}
+  - {<<: *mi, id: more_info_access_tambour, role: access_tambour}
+  - {<<: *mi, id: more_info_access_garage, role: access_garage}
+  - {<<: *mi, id: more_info_access_sectional, role: access_sectional}
+  - {<<: *mi, id: more_info_access_veranda, role: access_veranda}
+  - {<<: *mi, id: more_info_access_garden, role: access_garden}
+  presentation:
+    renderer: tiles_v1
+    columns: 3
+    role_order:
+    - safety_01
+    - safety_02
+    - safety_03
+    - safety_04
+    - safety_05
+    - opening_01
+    - opening_02
+    - opening_03
+    - opening_04
+    - opening_05
+    - opening_06
+    - opening_07
+    - opening_08
+    - opening_09
+    - opening_10
+    - opening_11
+    - opening_12
+    - opening_13
+    - opening_14
+    - opening_15
+    - opening_16
+    - opening_17
+    - opening_18
+    - opening_19
+    - opening_20
+    - opening_21
+    - opening_22
+    - opening_23
+    - opening_24
+    - opening_25
+    - opening_26
+    - opening_27
+    - opening_28
+    - opening_29
+    - opening_30
+    - motion_01
+    - motion_02
+    - motion_03
+    - motion_04
+    - motion_05
+    - motion_06
+    - motion_07
+    - motion_08
+    - motion_09
+    - motion_10
+    - motion_11
+    - motion_12
+    - motion_13
+    - motion_14
+    - motion_15
+    - motion_16
+    - motion_17
+    - motion_18
+    - motion_19
+    - motion_20
+    - motion_21
+    - motion_22
+    - light_01
+    - light_02
+    - light_03
+    - light_04
+    - light_05
+    - light_06
+    - light_07
+    - light_08
+    - light_09
+    - light_10
+    - light_11
+    - light_12
+    - light_13
+    - light_14
+    - light_15
+    - light_16
+    - light_17
+    - light_18
+    - light_19
+    - light_20
+    - light_21
+    - light_22
+    - light_23
+    - light_24
+    - light_25
+    - light_26
+    - climate_01
+    - climate_02
+    - climate_03
+    - climate_04
+    - climate_05
+    - climate_06
+    - climate_07
+    - climate_08
+    - climate_09
+    - climate_10
+    - climate_11
+    - climate_12
+    - climate_13
+    - camera_01
+    - camera_02
+    - camera_03
+    - camera_04
+    - camera_05
+    - camera_06
+    - camera_07
+    - camera_08
+    - weather
+    - power_a
+    - power_b
+    - power_c
+    - water_drinking
+    - internet
+    - heating_radiators
+    - heating_floor
+    - heating_circulation
+    - heating_dhw
+    - heating_main
+    - heating_reserve
+    - heating_main_temp
+    - heating_reserve_temp
+    - car_683_alarm
+    - car_683_fuel
+    - car_130_alarm
+    - car_130_fuel
+    - access_entrance
+    - access_tambour
+    - access_garage
+    - access_sectional
+    - access_veranda
+    - access_garden
+  safety:
+    unknown_is_unreliable: true
+    unavailable_is_unreliable: true
+    invent_entity_ids: false
+    notes:
+    - Main House panel is summary/context/navigation only.
+    - Detailed subsystem control belongs to its owning panel.
+    - Fuel is factual telemetry and has no risk threshold coloring.
+    - Access unknown/unavailable is never interpreted as closed.

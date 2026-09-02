@@ -1,0 +1,55 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://nikasir.github.io/ha-nikas-house/schemas/inventory.schema.json",
+  "title": "Home Assistant semantic inventory",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["api_version", "kind", "metadata", "spec"],
+  "properties": {
+    "api_version": {"const": "nikas.home-assistant/semantic-inventory/v1"},
+    "kind": {"const": "SemanticInventory"},
+    "metadata": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["generated_at", "source", "scrubbed"],
+      "properties": {
+        "generated_at": {"type": "string", "format": "date-time"},
+        "source": {"const": "home_assistant"},
+        "scrubbed": {"const": true},
+        "home_assistant_version": {"type": "string", "minLength": 1},
+        "snapshot_id": {"type": "string", "minLength": 1}
+      }
+    },
+    "spec": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["bindings"],
+      "properties": {
+        "bindings": {
+          "type": "object",
+          "minProperties": 1,
+          "propertyNames": {
+            "pattern": "^[a-z][a-z0-9_-]*(?:\\.[a-z][a-z0-9_-]*){2,}$"
+          },
+          "additionalProperties": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["entity_id", "domain", "verification"],
+            "properties": {
+              "entity_id": {
+                "type": "string",
+                "pattern": "^[a-z][a-z0-9_]*\\.[a-z0-9_]+$"
+              },
+              "domain": {"type": "string", "pattern": "^[a-z][a-z0-9_]*$"},
+              "verification": {"const": "verified"},
+              "device_class": {"type": ["string", "null"]},
+              "unit_of_measurement": {"type": ["string", "null"]},
+              "area": {"type": ["string", "null"]},
+              "notes": {"type": "string"}
+            }
+          }
+        }
+      }
+    }
+  }
+}

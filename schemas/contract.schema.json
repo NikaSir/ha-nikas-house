@@ -1,0 +1,156 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://nikasir.github.io/ha-nikas-house/schemas/contract.schema.json",
+  "title": "Home Assistant UI contract",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["api_version", "kind", "metadata", "spec"],
+  "properties": {
+    "api_version": {"const": "nikas.home-assistant/ui-contract/v1"},
+    "kind": {"const": "UIContract"},
+    "metadata": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "title", "version"],
+      "properties": {
+        "id": {"type": "string", "pattern": "^[a-z][a-z0-9._-]*$"},
+        "title": {"type": "string", "minLength": 1},
+        "version": {"type": "string", "pattern": "^v?[0-9]+\\.[0-9]+(?:\\.[0-9]+)?$"},
+        "description": {"type": "string"}
+      }
+    },
+    "spec": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["roles", "states", "actions", "presentation", "safety"],
+      "properties": {
+        "roles": {
+          "type": "object",
+          "minProperties": 1,
+          "propertyNames": {"pattern": "^[a-z][a-z0-9_]*$"},
+          "additionalProperties": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["label", "description", "required", "allowed_domains"],
+            "properties": {
+              "label": {"type": "string", "minLength": 1},
+              "description": {"type": "string", "minLength": 1},
+              "required": {"type": "boolean"},
+              "allowed_domains": {
+                "type": "array",
+                "minItems": 1,
+                "items": {"type": "string", "pattern": "^[a-z][a-z0-9_]*$"},
+                "uniqueItems": true
+              }
+            }
+          }
+        },
+        "states": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["normal", "event", "unreliable"],
+          "properties": {
+            "normal": {"$ref": "#/$defs/state_class"},
+            "event": {"$ref": "#/$defs/state_class"},
+            "unreliable": {"$ref": "#/$defs/state_class"}
+          }
+        },
+        "actions": {
+          "type": "array",
+          "minItems": 1,
+          "items": {"$ref": "#/$defs/action"}
+        },
+        "presentation": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["renderer", "columns", "role_order"],
+          "properties": {
+            "renderer": {"const": "tiles_v1"},
+            "columns": {"type": "integer", "minimum": 1, "maximum": 4},
+            "role_order": {
+              "type": "array",
+              "minItems": 1,
+              "items": {"type": "string", "pattern": "^[a-z][a-z0-9_]*$"},
+              "uniqueItems": true
+            },
+            "role_groups": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["status", "telemetry", "diagnostic"],
+              "properties": {
+                "status": {"$ref": "#/$defs/role_group"},
+                "telemetry": {"$ref": "#/$defs/role_group"},
+                "diagnostic": {"$ref": "#/$defs/role_group"}
+              }
+            }
+          }
+        },
+        "safety": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "unknown_is_unreliable",
+            "unavailable_is_unreliable",
+            "invent_entity_ids"
+          ],
+          "properties": {
+            "unknown_is_unreliable": {"const": true},
+            "unavailable_is_unreliable": {"const": true},
+            "invent_entity_ids": {"const": false},
+            "notes": {
+              "type": "array",
+              "items": {"type": "string", "minLength": 1},
+              "uniqueItems": true
+            }
+          }
+        }
+      }
+    }
+  },
+  "$defs": {
+    "role_group": {
+      "type": "array",
+      "items": {"type": "string", "pattern": "^[a-z][a-z0-9_]*$"},
+      "uniqueItems": true
+    },
+    "state_rule": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "description"],
+      "properties": {
+        "id": {"type": "string", "pattern": "^[a-z][a-z0-9_]*$"},
+        "description": {"type": "string", "minLength": 1},
+        "roles": {
+          "type": "array",
+          "items": {"type": "string", "pattern": "^[a-z][a-z0-9_]*$"},
+          "uniqueItems": true
+        },
+        "priority": {"type": "integer", "minimum": 0}
+      }
+    },
+    "state_class": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["description", "rules"],
+      "properties": {
+        "description": {"type": "string", "minLength": 1},
+        "rules": {
+          "type": "array",
+          "items": {"$ref": "#/$defs/state_rule"}
+        }
+      }
+    },
+    "action": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "kind", "description", "role"],
+      "properties": {
+        "id": {"type": "string", "pattern": "^[a-z][a-z0-9_]*$"},
+        "kind": {"enum": ["more_info", "navigate", "service", "toggle", "none"]},
+        "description": {"type": "string", "minLength": 1},
+        "role": {"type": "string", "pattern": "^[a-z][a-z0-9_]*$"},
+        "target": {"type": "string", "minLength": 1}
+      }
+    }
+  }
+}

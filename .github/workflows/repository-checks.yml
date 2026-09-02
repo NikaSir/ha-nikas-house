@@ -1,0 +1,279 @@
+name: Repository checks
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v7
+
+      - name: Set up Python
+        uses: actions/setup-python@v7
+        with:
+          python-version: "3.13"
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: "22"
+
+      - name: Install project and test dependencies
+        run: python -m pip install --disable-pip-version-check -e '.[test]'
+
+      - name: Validate JSON and YAML syntax
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          import yaml
+
+          for path in Path('.').rglob('*'):
+              if not path.is_file() or '.git' in path.parts:
+                  continue
+              if path.suffix == '.json':
+                  with path.open(encoding='utf-8') as handle:
+                      json.load(handle)
+                  print(f'JSON OK {path}')
+              elif path.suffix in {'.yaml', '.yml'}:
+                  with path.open(encoding='utf-8') as handle:
+                      yaml.safe_load(handle)
+                  print(f'YAML OK {path}')
+          PY
+
+      - name: Enforce NikaS UI standard v1.9
+        run: python scripts/check_nikas_ui_standard.py
+
+      - name: Validate frontend JavaScript syntax
+        run: |
+          node --check custom_components/nikas_house/frontend/nikas-house-hero.js
+          node --input-type=module --check < custom_components/nikas_house/frontend/nikas-house-overview.js
+          node --check custom_components/nikas_house/frontend/nikas-ui.js
+          node --check custom_components/nikas_house/frontend/dist/nikas-house-overview.js
+          node scripts/check_navigation.mjs
+
+      - name: Verify deterministic House bundle
+        run: |
+          ./scripts/build_frontend_bundles.sh
+          git diff --exit-code -- custom_components/nikas_house/frontend/dist/nikas-house-overview.js
+
+      - name: Smoke-test House hero runtime
+        run: |
+          node - <<'JS'
+          global.HTMLElement = class {
+            constructor() {
+              const properties = new Map();
+              this.style = {
+                getPropertyValue(name) { return properties.get(name) || ""; },
+                setProperty(name, value) { properties.set(name, value); },
+              };
+            }
+            toggleAttribute() {}
+            attachShadow() {
+              this.shadowRoot = {
+                innerHTML: "",
+                querySelectorAll() { return []; },
+                querySelector(selector) {
+                  if (selector !== ".hero") return null;
+                  return { getBoundingClientRect() { return { top: 112 }; } };
+                },
+              };
+              return this.shadowRoot;
+            }
+          };
+          const registry = new Map();
+          global.customElements = {
+            define(name, ctor) { registry.set(name, ctor); },
+            get(name) { return registry.get(name); },
+          };
+          global.Event = class Event { constructor(type) { this.type = type; } };
+          global.window = {
+            customCards: [],
+            setInterval() { return 1; },
+            clearInterval() {},
+            history: { pushState() {} },
+            dispatchEvent() {},
+          };
+          global.document = {
+            getElementById(id) {
+              if (id !== 'nikas-house-global-tabbar') return null;
+              return { getBoundingClientRect() { return { top: 820 }; } };
+            },
+          };
+
+          require('./custom_components/nikas_house/frontend/nikas-house-hero.js');
+          const Hero = customElements.get('nikas-house-main-hero');
+          if (!Hero) throw new Error('nikas-house-main-hero was not registered');
+          const card = new Hero();
+          card.setConfig({
+            title: 'Дом сейчас',
+            entities: {
+              safety: ['binary_sensor.safety'],
+              openings: ['binary_sensor.window'],
+              windows: ['binary_sensor.window'],
+              motion: ['binary_sensor.motion'],
+              lights: ['light.room'],
+              climate: ['climate.room'],
+              cameras: ['camera.front'],
+              weather: 'weather.home',
+              power: ['sensor.va', 'sensor.vb', 'sensor.vc'],
+              water: 'sensor.water',
+              internet: 'binary_sensor.internet',
+              heating: {
+                main: 'binary_sensor.main', reserve: 'binary_sensor.reserve',
+                radiators: 'binary_sensor.rad', floor: 'binary_sensor.floor',
+                circulation: 'binary_sensor.circ', main_temp: 'sensor.main_temp',
+                reserve_temp: 'sensor.reserve_temp'
+              },
+              access: { sectional: 'binary_sensor.gate', entrance: 'binary_sensor.door' },
+            },
+            routes: {
+              safety: '/safety', open: '/open', activity: '/activity', lights: '/lights',
+              climate: '/climate', cameras: '/cameras', weather: '/weather',
+              electricity: '/electricity', water: '/water', network: '/network', heating: '/heating',
+              access: '/access'
+            }
+          });
+          const hass = {
+            states: {
+              'binary_sensor.safety': { state: 'off', attributes: {} },
+              'binary_sensor.window': { state: 'off', attributes: {} },
+              'binary_sensor.motion': { state: 'off', attributes: {} },
+              'light.room': { state: 'off', attributes: {} },
+              'climate.room': { state: 'heat', attributes: { hvac_action: 'idle' } },
+              'camera.front': { state: 'idle', attributes: {} },
+              'weather.home': { state: 'sunny', attributes: { temperature: 20.5 } },
+              'sensor.va': { state: '220', attributes: {} },
+              'sensor.vb': { state: '221', attributes: {} },
+              'sensor.vc': { state: '222', attributes: {} },
+              'sensor.nikas_h2000_pro_voda_na_poliv_2': {
+                state: '2.90',
+                attributes: { friendly_name: 'Датчик давления полив', unit_of_measurement: 'bar' }
+              },
+              'binary_sensor.internet': { state: 'on', attributes: {} },
+              'binary_sensor.main': { state: 'off', attributes: {} },
+              'binary_sensor.reserve': { state: 'off', attributes: {} },
+              'binary_sensor.rad': { state: 'on', attributes: {} },
+              'binary_sensor.floor': { state: 'off', attributes: {} },
+              'binary_sensor.circ': { state: 'off', attributes: {} },
+              'sensor.main_temp': { state: '57', attributes: {} },
+              'sensor.reserve_temp': { state: '40', attributes: {} },
+              'binary_sensor.gate': { state: 'off', attributes: {} },
+              'binary_sensor.door': { state: 'off', attributes: {} },
+            }
+          };
+          card.hass = hass;
+          if (!card.shadowRoot.innerHTML.includes('Электросеть')) {
+            throw new Error('House hero did not render expected markup');
+          }
+          const utility = card._utility('Электросеть', 'green', '/electricity');
+          if (!utility.includes('utility-card green') || !utility.includes('>Электросеть</strong>') || utility.includes('ha-icon')) {
+            throw new Error(`Text-only utility plaque mismatch: ${utility}`);
+          }
+          const healthy = card._climate(['climate.room', 'climate.missing']);
+          if (healthy.tone !== 'green' || healthy.active !== 0 || healthy.unavailable !== 0 || healthy.missing !== 1) {
+            throw new Error(`Healthy climate summary mismatch: ${JSON.stringify(healthy)}`);
+          }
+          hass.states['climate.room'] = { state: 'heat', attributes: { hvac_action: 'heating' } };
+          const active = card._climate(['climate.room']);
+          if (active.tone !== 'yellow' || active.active !== 1) {
+            throw new Error(`Active climate summary mismatch: ${JSON.stringify(active)}`);
+          }
+          hass.states['climate.room'] = { state: 'unavailable', attributes: {} };
+          const unavailable = card._climate(['climate.room']);
+          if (unavailable.tone !== 'orange' || unavailable.unavailable !== 1) {
+            throw new Error(`Unavailable climate summary mismatch: ${JSON.stringify(unavailable)}`);
+          }
+          const missing = card._climate(['climate.missing']);
+          if (missing.tone !== 'grey' || missing.value !== '—' || missing.missing !== 1) {
+            throw new Error(`Missing climate summary mismatch: ${JSON.stringify(missing)}`);
+          }
+          const water = card._water();
+          if (water.tone !== 'green' || water.label !== 'Есть' || water.detail !== '2,90 бар') {
+            throw new Error(`Irrigation pressure water summary mismatch: ${JSON.stringify(water)}`);
+          }
+          hass.states['sensor.nikas_h2000_pro_voda_na_poliv_2'] = { state: '0', attributes: { unit_of_measurement: 'bar' } };
+          const noWater = card._water();
+          if (noWater.tone !== 'red' || noWater.label !== 'Нет воды') {
+            throw new Error(`Zero irrigation pressure mismatch: ${JSON.stringify(noWater)}`);
+          }
+          delete hass.states['sensor.nikas_h2000_pro_voda_na_poliv_2'];
+          const missingWater = card._water();
+          if (missingWater.tone !== 'grey' || missingWater.label !== 'Нет данных') {
+            throw new Error(`Missing irrigation pressure mismatch: ${JSON.stringify(missingWater)}`);
+          }
+          card._fitViewport();
+          if (card.style.getPropertyValue('--house-hero-available-height') !== '708px') {
+            throw new Error('House hero did not fit itself to the fixed global Tab Bar');
+          }
+          console.log('House hero runtime smoke test OK');
+          JS
+
+      - name: Smoke-test specialized House panel registration
+        run: |
+          node - <<'JS'
+          global.HTMLElement = class {
+            constructor() {}
+            attachShadow() {
+              const nodes = new Map();
+              this.shadowRoot = {
+                innerHTML: '',
+                getElementById() { return { set onclick(_value) {} }; },
+                querySelector() { return null; },
+              };
+              return this.shadowRoot;
+            }
+            dispatchEvent() { return true; }
+          };
+          const registry = new Map([['nikas-house-main-hero', class {}]]);
+          global.customElements = {
+            define(name, ctor) { registry.set(name, ctor); },
+            get(name) { return registry.get(name); },
+          };
+          global.window = {
+            location: { pathname: '/dashboard-house-v13/home' },
+            history: { pushState() {} },
+            dispatchEvent() {},
+            localStorage: { getItem() { return null; }, setItem() {} },
+            setTimeout,
+            clearTimeout,
+          };
+          global.Event = class Event {};
+          const fs = require('node:fs');
+          const source = fs
+            .readFileSync('./custom_components/nikas_house/frontend/nikas-house-overview.js', 'utf8')
+            .replace(/^import[^\n]+\n/, '');
+          new Function(source)();
+          if (!customElements.get('nikas-house-panel')) {
+            throw new Error('nikas-house-panel was not registered');
+          }
+          console.log('Specialized House panel registration OK');
+          JS
+
+      - name: Validate NikaS House inputs
+        run: python -m generator validate .
+
+      - name: Run regression tests
+        run: python -m pytest -q
+
+      - name: Compile Python sources
+        run: python -m compileall -q generator custom_components/nikas_house tests
+
+      - name: Reject tracked credential and private Home Assistant files
+        shell: bash
+        run: |
+          forbidden="$(git ls-files | grep -E '(^|/)(secrets\.yaml|\.env($|\.)|\.storage(/|$)|.*\.(pem|key|p12)$|home-assistant_v2\.db)' | grep -v -E '(^|/)\.env\.example$' || true)"
+          if [ -n "$forbidden" ]; then
+            echo 'Forbidden private/credential-like files are tracked:'
+            echo "$forbidden"
+            exit 1
+          fi

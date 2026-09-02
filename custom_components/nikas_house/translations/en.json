@@ -1,0 +1,37 @@
+{
+  "title": "NikaS House",
+  "config": {
+    "step": {
+      "user": {
+        "title": "NikaS House",
+        "description": "Monitor and validate contract sources in `/config/nikas_house`. No Home Assistant entity IDs are invented or written by this setup step.",
+        "data": {}
+      }
+    }
+  },
+  "entity": {
+    "button": {
+      "capture_registry_snapshot": {
+        "name": "Capture registry snapshot"
+      },
+      "download_registry_snapshot": {
+        "name": "Download registry snapshot"
+      },
+      "generate_dashboards": {
+        "name": "Generate dashboards"
+      }
+    },
+    "sensor": {
+      "source_status": {
+        "name": "Source status",
+        "state": {
+          "missing": "Source directory missing",
+          "empty": "Empty",
+          "incomplete": "Incomplete",
+          "valid": "Valid",
+          "invalid": "Invalid"
+        }
+      }
+    }
+  }
+}

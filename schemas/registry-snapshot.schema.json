@@ -1,0 +1,126 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://nikasir.github.io/ha-nikas-house/schemas/registry-snapshot.schema.json",
+  "title": "Scrubbed Home Assistant registry snapshot",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["api_version", "kind", "metadata", "spec"],
+  "properties": {
+    "api_version": {"enum": ["nikas.home-assistant/registry-snapshot/v1", "nikas.home-assistant/registry-snapshot/v2"]},
+    "kind": {"const": "RegistrySnapshot"},
+    "metadata": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["captured_at", "source", "scrubbed", "snapshot_id"],
+      "properties": {
+        "captured_at": {"type": "string", "format": "date-time"},
+        "source": {"const": "home_assistant"},
+        "scrubbed": {"const": true},
+        "snapshot_id": {"type": "string", "pattern": "^sha256:[0-9a-f]{20}$"},
+        "home_assistant_version": {"type": "string", "minLength": 1},
+        "contents": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["entities", "devices", "areas", "floors", "labels"],
+          "properties": {
+            "entities": {"type": "integer", "minimum": 0},
+            "devices": {"type": "integer", "minimum": 0},
+            "areas": {"type": "integer", "minimum": 0},
+            "floors": {"type": "integer", "minimum": 0},
+            "labels": {"type": "integer", "minimum": 0}
+          }
+        }
+      }
+    },
+    "spec": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["entities"],
+      "properties": {
+        "entities": {"type": "array", "items": {"$ref": "#/$defs/entity"}},
+        "devices": {"type": "array", "items": {"$ref": "#/$defs/device"}},
+        "areas": {"type": "array", "items": {"$ref": "#/$defs/area"}},
+        "floors": {"type": "array", "items": {"$ref": "#/$defs/floor"}},
+        "labels": {"type": "array", "items": {"$ref": "#/$defs/label"}}
+      }
+    }
+  },
+  "$defs": {
+    "labels": {"type": "array", "uniqueItems": true, "items": {"type": "string", "minLength": 1}},
+    "entity": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["entity_id", "domain", "platform", "disabled", "hidden"],
+      "properties": {
+        "entity_id": {"type": "string", "pattern": "^[a-z][a-z0-9_]*\\.[a-z0-9_]+$"},
+        "domain": {"type": "string", "pattern": "^[a-z][a-z0-9_]*$"},
+        "platform": {"type": "string", "minLength": 1},
+        "device_id": {"type": "string", "minLength": 1},
+        "area_id": {"type": "string", "minLength": 1},
+        "area": {"type": ["string", "null"]},
+        "labels": {"$ref": "#/$defs/labels"},
+        "name": {"type": "string"},
+        "original_name": {"type": "string"},
+        "device_class": {"type": ["string", "null"]},
+        "unit_of_measurement": {"type": ["string", "null"]},
+        "disabled": {"type": "boolean"},
+        "hidden": {"type": "boolean"}
+      }
+    },
+    "device": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["device_id", "disabled"],
+      "properties": {
+        "device_id": {"type": "string", "minLength": 1},
+        "area_id": {"type": "string", "minLength": 1},
+        "labels": {"$ref": "#/$defs/labels"},
+        "name": {"type": "string"},
+        "name_by_user": {"type": "string"},
+        "manufacturer": {"type": "string"},
+        "model": {"type": "string"},
+        "model_id": {"type": "string"},
+        "via_device_id": {"type": "string", "minLength": 1},
+        "entry_type": {"type": "string"},
+        "disabled": {"type": "boolean"}
+      }
+    },
+    "area": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["area_id", "name"],
+      "properties": {
+        "area_id": {"type": "string", "minLength": 1},
+        "name": {"type": "string", "minLength": 1},
+        "floor_id": {"type": "string", "minLength": 1},
+        "icon": {"type": "string"},
+        "aliases": {"type": "array", "uniqueItems": true, "items": {"type": "string"}},
+        "labels": {"$ref": "#/$defs/labels"}
+      }
+    },
+    "floor": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["floor_id", "name"],
+      "properties": {
+        "floor_id": {"type": "string", "minLength": 1},
+        "name": {"type": "string", "minLength": 1},
+        "level": {"type": "integer"},
+        "icon": {"type": "string"},
+        "aliases": {"type": "array", "uniqueItems": true, "items": {"type": "string"}}
+      }
+    },
+    "label": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["label_id", "name"],
+      "properties": {
+        "label_id": {"type": "string", "minLength": 1},
+        "name": {"type": "string", "minLength": 1},
+        "color": {"type": "string"},
+        "icon": {"type": "string"},
+        "description": {"type": "string"}
+      }
+    }
+  }
+}

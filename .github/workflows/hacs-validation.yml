@@ -1,0 +1,28 @@
+name: HACS validation
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: hacs-validation-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  validate:
+    name: validate
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v6
+      - name: Validate HACS integration repository
+        uses: hacs/action@885037da508419fd08c13515967aec868dfdee2d
+        with:
+          category: integration
+          ignore: topics
