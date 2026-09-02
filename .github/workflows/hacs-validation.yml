@@ -22,7 +22,7 @@ jobs:
       - name: Check out repository
         uses: actions/checkout@v6
       - name: Validate HACS integration repository
-        uses: hacs/action@885037da508419fd08c13515967aec868dfdee2d
+        uses: hacs/action@1ebf01c408f29afcb6406bd431bc98fd8cbb15aa
         with:
           category: integration
           ignore: topics
