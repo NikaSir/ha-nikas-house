@@ -10,7 +10,7 @@ PACKAGE = ROOT / "custom_components" / "nikas_house"
 
 def test_release_is_house_only() -> None:
     manifest = json.loads((PACKAGE / "manifest.json").read_text(encoding="utf-8"))
-    assert manifest["version"] == "0.1.0"
+    assert manifest["version"] == "0.1.1"
     assert set(manifest["dependencies"]) == {"frontend", "http"}
     assert manifest["after_dependencies"] == ["lovelace"]
 
