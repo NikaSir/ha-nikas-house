@@ -1,0 +1,37 @@
+api_version: nikas.home-assistant/navigation/v1
+kind: NavigationContract
+metadata:
+  id: main
+  version: 3.0.0
+  description: House-only navigation links; routes outside House are external and remain independently owned.
+spec:
+  routes:
+    home:
+      title: Дом
+      path: /dashboard-house-v13/home
+    actions:
+      title: Действия
+      path: /dashboard-actions/home
+    infrastructure:
+      title: Инфраструктура
+      path: /dashboard-infrastructure/overview
+    rooms:
+      title: Помещения
+      path: /dashboard-rooms-v11/rooms
+  global_tabs:
+    - id: home
+      route: home
+      title: Дом
+      icon: mdi:home-outline
+    - id: rooms
+      route: rooms
+      title: Помещения
+      icon: mdi:floor-plan
+    - id: actions
+      route: actions
+      title: Действия
+      icon: mdi:lightning-bolt-outline
+    - id: infrastructure
+      route: infrastructure
+      title: Инфра
+      icon: mdi:server-network

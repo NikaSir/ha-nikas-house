@@ -1,0 +1,377 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://nikasir.github.io/ha-nikas-house/schemas/manifest.schema.json",
+  "title": "Home Assistant panel manifest",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "api_version",
+    "kind",
+    "metadata",
+    "spec"
+  ],
+  "properties": {
+    "api_version": {
+      "const": "nikas.home-assistant/panel-manifest/v1"
+    },
+    "kind": {
+      "const": "PanelManifest"
+    },
+    "metadata": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "title",
+        "version"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^[a-z][a-z0-9._-]*$"
+        },
+        "title": {
+          "type": "string",
+          "minLength": 1
+        },
+        "version": {
+          "type": "string",
+          "pattern": "^v?[0-9]+\\.[0-9]+(?:\\.[0-9]+)?$"
+        },
+        "description": {
+          "type": "string"
+        }
+      }
+    },
+    "spec": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "dashboard_path",
+        "views"
+      ],
+      "properties": {
+        "dashboard_path": {
+          "type": "string",
+          "pattern": "^/[a-z0-9][a-z0-9/_-]*$"
+        },
+        "navigation": {
+          "type": "object",
+          "propertyNames": {
+            "pattern": "^[a-z][a-z0-9_]*$"
+          },
+          "additionalProperties": {
+            "type": "string",
+            "pattern": "^/[a-z0-9][a-z0-9/_-]*$"
+          }
+        },
+        "app_shell": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "active"
+          ],
+          "properties": {
+            "active": {
+              "enum": [
+                "home",
+                "actions",
+                "infrastructure"
+              ]
+            },
+            "routes": {
+              "type": "object",
+              "additionalProperties": false,
+              "properties": {
+                "home": {
+                  "type": "string",
+                  "pattern": "^/[a-z0-9][a-z0-9/_-]*$"
+                },
+                "actions": {
+                  "type": "string",
+                  "pattern": "^/[a-z0-9][a-z0-9/_-]*$"
+                },
+                "infrastructure": {
+                  "type": "string",
+                  "pattern": "^/[a-z0-9][a-z0-9/_-]*$"
+                }
+              }
+            }
+          }
+        },
+        "subpanel": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "template",
+            "navigation",
+            "parent"
+          ],
+          "properties": {
+            "template": {
+              "const": "standard_v1"
+            },
+            "navigation": {
+              "type": "string",
+              "pattern": "^[a-z][a-z0-9._-]*$"
+            },
+            "parent": {
+              "type": "string",
+              "pattern": "^[a-z][a-z0-9._-]*$"
+            },
+            "source": {
+              "$ref": "#/$defs/subpanel_source"
+            }
+          }
+        },
+        "specialized_panel": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "template"
+          ],
+          "properties": {
+            "template": {
+              "enum": [
+                "house_overview_v1",
+                "infrastructure_overview_v1"
+              ]
+            }
+          }
+        },
+        "views": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "$ref": "#/$defs/view"
+          }
+        }
+      },
+      "allOf": [
+        {
+          "not": {
+            "required": [
+              "app_shell",
+              "subpanel"
+            ]
+          }
+        }
+      ]
+    }
+  },
+  "$defs": {
+    "subpanel_source": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "kind",
+        "platforms"
+      ],
+      "properties": {
+        "kind": {
+          "const": "entity_registry"
+        },
+        "platforms": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "pattern": "^[a-z0-9_]+$"
+          }
+        },
+        "include_disabled": {
+          "type": "boolean",
+          "default": false
+        }
+      }
+    },
+    "readonly_view": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "domains": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "pattern": "^[a-z][a-z0-9_]*$"
+          }
+        },
+        "include_keywords": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "exclude_keywords": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "priority_keywords": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "unavailable_only": {
+          "type": "boolean"
+        },
+        "limit": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 50
+        }
+      }
+    },
+    "module": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "contract",
+        "order",
+        "bindings"
+      ],
+      "properties": {
+        "contract": {
+          "type": "string",
+          "pattern": "^[a-z][a-z0-9._-]*$"
+        },
+        "instance": {
+          "type": "string",
+          "pattern": "^[a-z][a-z0-9._-]*$"
+        },
+        "title": {
+          "type": "string",
+          "minLength": 1
+        },
+        "order": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "groups": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "enum": [
+              "status",
+              "telemetry",
+              "diagnostic"
+            ]
+          },
+          "uniqueItems": true
+        },
+        "bindings": {
+          "type": "object",
+          "minProperties": 1,
+          "propertyNames": {
+            "pattern": "^[a-z][a-z0-9_]*$"
+          },
+          "additionalProperties": {
+            "type": "string",
+            "pattern": "^[a-z][a-z0-9_-]*(?:\\.[a-z][a-z0-9_-]*){2,}$"
+          }
+        }
+      }
+    },
+    "view": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "title",
+        "path",
+        "order",
+        "modules"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^[a-z][a-z0-9_-]*$"
+        },
+        "title": {
+          "type": "string",
+          "minLength": 1
+        },
+        "icon": {
+          "type": "string",
+          "pattern": "^mdi:[a-z0-9-]+$"
+        },
+        "path": {
+          "type": "string",
+          "pattern": "^[a-z][a-z0-9_-]*$"
+        },
+        "order": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "renderer": {
+          "enum": [
+            "operational_v1",
+            "house_home_v1",
+            "actions_home_v1",
+            "infrastructure_summary_v1",
+            "subpanel_placeholder_v1"
+          ]
+        },
+        "placeholder": {
+          "type": "string",
+          "minLength": 1
+        },
+        "readonly": {
+          "$ref": "#/$defs/readonly_view"
+        },
+        "modules": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/module"
+          }
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "required": [
+              "renderer"
+            ],
+            "properties": {
+              "renderer": {
+                "const": "subpanel_placeholder_v1"
+              }
+            }
+          },
+          "then": {
+            "required": [
+              "placeholder",
+              "icon"
+            ],
+            "properties": {
+              "modules": {
+                "maxItems": 0
+              }
+            }
+          },
+          "else": {
+            "properties": {
+              "modules": {
+                "minItems": 1
+              }
+            }
+          }
+        }
+      ]
+    }
+  }
+}

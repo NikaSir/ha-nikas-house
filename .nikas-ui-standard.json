@@ -1,0 +1,72 @@
+{
+  "version": "1.9",
+  "navigation_contract_version": "1.1",
+  "standard_path": "docs/NIKAS_SPECIALIZED_PANEL_UI_STANDARD.md",
+  "standard_sha256": "f37925c002568593d40bcaec49ad9aed17d249651c4962102f60e368aa82a0d3",
+  "navigation_contract_path": "docs/NIKAS_PANEL_NAVIGATION_CONTRACT.md",
+  "navigation_contract_sha256": "5b1e308a97c85d95428cd63fb1867e35074dd7f6a92a3254c2506617374549e1",
+  "role": "base",
+  "runtime_files": [
+    "custom_components/nikas_house/frontend/nikas-ui.js",
+    "custom_components/nikas_house/frontend/nikas-house-hero.js",
+    "custom_components/nikas_house/frontend/nikas-house-overview.js",
+    "manifests/house_v13.yaml",
+    "navigation/main.yaml"
+  ],
+  "production_entrypoint": "custom_components/nikas_house/frontend/nikas-ui.js",
+  "source_handoff": {
+    "storage_write_marker": "sessionStorage.setItem(SPECIALIZED_SOURCE_ROUTE_KEY",
+    "timestamp_write_marker": "sessionStorage.setItem(SPECIALIZED_SOURCE_ROUTE_AT_KEY",
+    "rollback_marker": "clearSpecializedSourceRoute();",
+    "route_normalizer_marker": "function sourceBaseRoute",
+    "specialized_route_marker": "const SPECIALIZED_PANEL_PATHS",
+    "capture_marker": "rememberSpecializedSourceRoute(window.location.pathname, target)",
+    "navigation_marker": "function navigateWithSourceHandoff",
+    "delegation_marker": "window.NikasHouseNavigation?.navigate?.(path)",
+    "contract_version_marker": "contractVersion: \"1.1\""
+  },
+  "delegated_navigation_files": [
+    "custom_components/nikas_house/frontend/nikas-house-hero.js",
+    "custom_components/nikas_house/frontend/nikas-house-overview.js"
+  ],
+  "header_reference": {
+    "implementation": "S8 OMNI",
+    "implementation_source": "NikaSir/ha-s8-omni",
+    "background_primary_mix_percent": 97,
+    "divider_mix_percent": 70,
+    "blur_px": 18,
+    "saturation_percent": 130,
+    "side_action_size_px": 44,
+    "side_action_radius_px": 16,
+    "side_action_border_divider_mix_percent": 72,
+    "side_action_shadow": "0 7px 20px rgba(23,45,76,.08)"
+  },
+  "title_plaque_reference": {
+    "implementation": "S8 OMNI",
+    "implementation_source": "NikaSir/ha-s8-omni",
+    "min_width": "min(290px,100%)",
+    "min_height_px": 44,
+    "padding_px": "5 14",
+    "radius_px": 16,
+    "primary_background_mix_percent": 5,
+    "primary_border_mix_percent": 24,
+    "shadow": "0 5px 16px rgba(23,45,76,.06)"
+  },
+  "connection_plaque_reference": {
+    "implementation": "S8 OMNI",
+    "implementation_source": "NikaSir/ha-s8-omni",
+    "min_height_px": 58,
+    "padding_px": "12 14",
+    "radius_px": 18,
+    "lamp_px": 10,
+    "column_gap_px": 11,
+    "main_font": "16px/700",
+    "freshness_font": "13px/600",
+    "success_background_mix_percent": 11,
+    "status_background_mix_percent": 10,
+    "neutral_background_mix_percent": 8,
+    "status_border_mix_percent": 30,
+    "neutral_border_mix_percent": 28,
+    "shadow": "0 4px 14px rgba(0,0,0,.055)"
+  }
+}

@@ -1,0 +1,37 @@
+{
+  "title": "NikaS House",
+  "config": {
+    "step": {
+      "user": {
+        "title": "NikaS House",
+        "description": "Контроль и проверка контрактных источников в `/config/nikas_house`. На этом шаге интеграция не создаёт и не подменяет entity_id Home Assistant.",
+        "data": {}
+      }
+    }
+  },
+  "entity": {
+    "button": {
+      "capture_registry_snapshot": {
+        "name": "Снять снимок реестра"
+      },
+      "download_registry_snapshot": {
+        "name": "Скачать снимок реестра"
+      },
+      "generate_dashboards": {
+        "name": "Сгенерировать панели"
+      }
+    },
+    "sensor": {
+      "source_status": {
+        "name": "Состояние источников",
+        "state": {
+          "missing": "Каталог источников отсутствует",
+          "empty": "Пусто",
+          "incomplete": "Неполный набор",
+          "valid": "Корректно",
+          "invalid": "Ошибка"
+        }
+      }
+    }
+  }
+}

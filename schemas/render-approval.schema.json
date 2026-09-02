@@ -1,0 +1,40 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://nikasir.github.io/ha-nikas-house/schemas/render-approval.schema.json",
+  "title": "NikaS House render approval",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "api_version",
+    "baseline_dashboard_sha256",
+    "candidate_dashboard_sha256",
+    "semantic_diff_sha256",
+    "reviewed_by",
+    "rationale"
+  ],
+  "properties": {
+    "api_version": {
+      "const": "nikas.home-assistant/render-approval/v1"
+    },
+    "baseline_dashboard_sha256": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "candidate_dashboard_sha256": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "semantic_diff_sha256": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "reviewed_by": {
+      "type": "string",
+      "minLength": 1
+    },
+    "rationale": {
+      "type": "string",
+      "minLength": 10
+    }
+  }
+}

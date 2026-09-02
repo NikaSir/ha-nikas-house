@@ -1,0 +1,83 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://nikasir.github.io/ha-nikas-house/schemas/render-diff.schema.json",
+  "title": "NikaS House semantic render diff",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "api_version",
+    "baseline_dashboard_sha256",
+    "candidate_dashboard_sha256",
+    "changes",
+    "semantic_diff_sha256"
+  ],
+  "properties": {
+    "api_version": {
+      "const": "nikas.home-assistant/render-diff/v1"
+    },
+    "baseline_dashboard_sha256": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "candidate_dashboard_sha256": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "changes": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/change"
+      }
+    },
+    "semantic_diff_sha256": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    }
+  },
+  "$defs": {
+    "change": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "category",
+        "kind",
+        "key",
+        "severity",
+        "before",
+        "after"
+      ],
+      "properties": {
+        "category": {
+          "enum": [
+            "manifest",
+            "contract",
+            "source",
+            "view",
+            "module",
+            "binding",
+            "action",
+            "renderer"
+          ]
+        },
+        "kind": {
+          "type": "string",
+          "minLength": 1
+        },
+        "key": {
+          "type": "string",
+          "minLength": 1
+        },
+        "severity": {
+          "enum": [
+            "low",
+            "medium",
+            "high",
+            "critical"
+          ]
+        },
+        "before": {},
+        "after": {}
+      }
+    }
+  }
+}
