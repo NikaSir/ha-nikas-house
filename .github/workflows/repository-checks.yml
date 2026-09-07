@@ -2,8 +2,6 @@ name: Repository checks
 
 on:
   push:
-    branches:
-      - main
   pull_request:
   workflow_dispatch:
 
@@ -11,7 +9,7 @@ permissions:
   contents: read
 
 jobs:
-  validate:
+  repository-checks:
     runs-on: ubuntu-latest
     steps:
       - name: Check out repository
@@ -277,3 +275,57 @@ jobs:
             echo "$forbidden"
             exit 1
           fi
+
+  hacs:
+    runs-on: ubuntu-latest
+    concurrency:
+      group: hacs-validation-${{ github.ref }}
+      cancel-in-progress: true
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v6
+      - name: Validate HACS integration repository
+        uses: hacs/action@885037da508419fd08c13515967aec868dfdee2d
+        with:
+          category: integration
+          ignore: topics
+
+  hassfest:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v7
+
+      - name: Validate Home Assistant integration
+        uses: home-assistant/actions/hassfest@master
+
+  validate:
+    needs: [repository-checks, hacs, hassfest]
+    if: ${{ always() }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Require every repository check to succeed
+        shell: bash
+        env:
+          NIKAS_JOB_RESULTS: ${{ toJSON(needs) }}
+        run: |
+          python3 - <<'PY'
+          import json
+          import os
+          import sys
+
+          required = {"repository-checks", "hacs", "hassfest"}
+          results = json.loads(os.environ["NIKAS_JOB_RESULTS"])
+          if not isinstance(results, dict) or set(results) != required:
+              print("Dependency results must contain exactly the three required jobs.")
+              sys.exit(1)
+          unsuccessful = [
+              name for name in sorted(required)
+              if not isinstance(results[name], dict)
+              or results[name].get("result") != "success"
+          ]
+          if unsuccessful:
+              print("Required checks did not succeed: " + ", ".join(unsuccessful))
+              sys.exit(1)
+          print("All required repository checks succeeded.")
+          PY
