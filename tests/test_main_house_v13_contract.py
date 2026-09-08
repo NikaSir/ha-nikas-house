@@ -60,6 +60,7 @@ def test_house_preview_keeps_protected_main_panel_routes() -> None:
     assert navigation["heating"] == "/dashboard-zont"
     assert navigation["cars"] == "/starline"
     assert navigation["infrastructure"] == "/dashboard-infrastructure/overview"
+    assert navigation["water"] == "/dashboard-water"
     assert navigation["actions"] == "/dashboard-actions/home"
     assert navigation["safety"] == "/dashboard-house/safety"
     assert navigation["open"] == "/dashboard-house/open"

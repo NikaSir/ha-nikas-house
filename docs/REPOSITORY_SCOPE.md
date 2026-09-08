@@ -16,6 +16,7 @@ The existing configured YAML dashboards remain the working baseline in Home Assi
 | `/dashboard-rooms-v11/rooms` | Autonomous Rooms route | External verified link |
 | `/dashboard-actions/home` | Existing YAML | External link until a separate Actions repository is accepted |
 | `/dashboard-infrastructure/overview` | Existing YAML | External link until a separate Infrastructure repository is accepted |
+| `/dashboard-water` | `ha-water-accounting` | External verified link; House owns only the entry point |
 | Device-specific routes | Separate integrations | Always externally owned |
 
 ## Preservation

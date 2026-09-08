@@ -106,7 +106,7 @@ def _navigation() -> dict[str, str]:
         "cars": "/dashboard-cars/cars",
         "infrastructure": "/dashboard-infrastructure/overview",
         "actions": "/dashboard-actions/home",
-        "water": "/dashboard-infrastructure/overview",
+        "water": "/dashboard-water",
         "electricity": "/dashboard-infrastructure/overview",
         "network": "/dashboard-infrastructure/overview",
         "equipment": "/dashboard-infrastructure/overview",
@@ -227,7 +227,7 @@ def test_house_preview_uses_declared_navigation_and_no_stale_zone_home() -> None
 
     hero = dashboard["views"][0]["sections"][0]["cards"][0]
     assert hero["routes"]["electricity"] == "/dashboard-infrastructure/overview"
-    assert hero["routes"]["water"] == "/dashboard-infrastructure/overview"
+    assert hero["routes"]["water"] == "/dashboard-water"
     assert hero["routes"]["network"] == "/dashboard-infrastructure/overview"
     assert hero["routes"]["heating"] == "/dashboard-boiler/heating-boiler"
 

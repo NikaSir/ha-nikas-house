@@ -73,6 +73,7 @@ def test_house_panel_spec_resolves_verified_semantics(tmp_path: Path) -> None:
     assert len(panel["hero"]["entities"]["safety"]) == 5
     assert len(panel["hero"]["entities"]["cameras"]) == 8
     assert panel["hero"]["routes"]["access"] == "/dashboard-access-v1/home"
+    assert panel["hero"]["routes"]["water"] == "/dashboard-water"
 
 
 def test_house_panel_uses_only_the_declared_parallel_route(tmp_path: Path) -> None:
@@ -95,7 +96,7 @@ def test_house_panel_never_replaces_an_existing_v13_owner() -> None:
 
 def test_house_manifest_declares_integration_owned_specialized_panel() -> None:
     manifest = yaml.safe_load((ROOT / "manifests" / "house_v13.yaml").read_text(encoding="utf-8"))
-    assert manifest["metadata"]["version"] == "1.0.0"
+    assert manifest["metadata"]["version"] == "1.0.1"
     assert manifest["spec"]["specialized_panel"] == {"template": HOUSE_PANEL_TEMPLATE}
     assert HOUSE_PANEL_WEB_COMPONENT == "nikas-house-panel"
 
@@ -104,7 +105,7 @@ def test_house_panel_uses_one_transform_owned_canvas_and_native_chrome() -> None
     frontend = (FRONTEND / "nikas-house-overview.js").read_text(encoding="utf-8")
 
     assert 'const ELEMENT_NAME = "nikas-house-panel"' in frontend
-    assert 'const UI_VERSION = "1.0.0"' in frontend
+    assert 'const UI_VERSION = "1.0.1"' in frontend
     assert frontend.count('class="canvas-viewport"') == 1
     assert frontend.count('class="work-canvas"') == 1
     assert "translate3d(${x}px, ${y}px, 0) scale(${scale})" in frontend
