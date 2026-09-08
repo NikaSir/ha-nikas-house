@@ -1,5 +1,5 @@
 (() => {
-  const BOOTSTRAP_KEY = "__nikas_house_navigation_v1_0_0_b001";
+  const BOOTSTRAP_KEY = "__nikas_house_navigation_v1_0_1_b001";
   if (window[BOOTSTRAP_KEY]) return;
   window[BOOTSTRAP_KEY] = true;
 
@@ -13,7 +13,7 @@
     "/dashboard-ups",
     "/dashboard-keenetic",
     "/dashboard-lider",
-    "/dashboard-water-accounting",
+    "/dashboard-water",
     "/dashboard-access-v1",
   ]);
 

@@ -2,7 +2,7 @@ import "/nikas_house/frontend/nikas-house-hero.js?build=v1_0_0_b001";
 
 (() => {
   const ELEMENT_NAME = "nikas-house-panel";
-  const UI_VERSION = "1.0.0";
+  const UI_VERSION = "1.0.1";
   if (customElements.get(ELEMENT_NAME)) return;
 
   const MIN_SCALE = 0.75;

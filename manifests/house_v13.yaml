@@ -3,7 +3,7 @@ kind: PanelManifest
 metadata:
   id: nikas_house_v13
   title: Дом
-  version: 1.0.0
+  version: 1.0.1
   description: House-only specialized overview; all detail dashboards remain external navigation targets.
 spec:
   dashboard_path: /dashboard-house-v13
@@ -24,7 +24,7 @@ spec:
     cars: /starline
     infrastructure: /dashboard-infrastructure/overview
     actions: /dashboard-actions/home
-    water: /dashboard-infrastructure/overview
+    water: /dashboard-water
     electricity: /dashboard-lider
     network: /dashboard-keenetic
     equipment: /dashboard-infrastructure/overview
