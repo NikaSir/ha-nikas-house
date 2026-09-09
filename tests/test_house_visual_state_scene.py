@@ -137,6 +137,20 @@ def test_house_climate_summary_distinguishes_missing_and_unavailable() -> None:
     assert 'resolved > 0 ? "green" : "grey"' in bundle
 
 
+def test_empty_entity_groups_never_render_as_healthy() -> None:
+    bundle = (FRONTEND / "nikas-house-hero.js").read_text(encoding="utf-8")
+
+    assert 'if (source.length === 0) return { label: "Нет данных", tone: "grey"' in bundle
+    assert 'motionIds.length === 0 ? "grey"' in bundle
+    assert 'lightIds.length === 0 ? "grey"' in bundle
+    assert 'windowIds.length === 0 ? "grey"' in bundle
+    assert 'doorIds.length === 0 ? "grey"' in bundle
+    assert 'motionIds.length === 0 ? "—"' in bundle
+    assert 'lightIds.length === 0 ? "—"' in bundle
+    assert 'windowIds.length === 0 ? "—"' in bundle
+    assert 'doorIds.length === 0 ? "—"' in bundle
+
+
 def test_house_water_uses_verified_irrigation_pressure() -> None:
     bundle = (FRONTEND / "nikas-house-hero.js").read_text(encoding="utf-8")
 
@@ -169,7 +183,7 @@ def test_access_cards_use_the_verified_autonomous_access_route() -> None:
     bundle = (FRONTEND / "nikas-house-hero.js").read_text(encoding="utf-8")
 
     assert "const accessRoute = routes.access || routes.open" in bundle
-    assert '"Двери",String(doors),doorTone,accessRoute' in bundle
+    assert '"Двери",doorValue,doorTone,accessRoute' in bundle
     assert 'gate.tone}" data-route="${escapeHtml(accessRoute)}' in bundle
     assert 'entrance.tone}" data-route="${escapeHtml(accessRoute)}' in bundle
     assert 'windowTone}" data-route="${escapeHtml(routes.open)}' in bundle

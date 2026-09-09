@@ -9,6 +9,7 @@ from custom_components.nikas_house.house_panel import (
     HOUSE_PANEL_TEMPLATE,
     HOUSE_PANEL_WEB_COMPONENT,
     build_house_panel_spec,
+    build_house_unavailable_panel_spec,
     materialize_house_panel_spec,
     select_house_panel_route,
 )
@@ -94,9 +95,44 @@ def test_house_panel_never_replaces_an_existing_v13_owner() -> None:
     assert select_house_panel_route(set().__contains__, "dashboard-house-v12") is None
 
 
+def test_house_panel_keeps_fail_closed_route_without_private_inventory(
+    tmp_path: Path,
+) -> None:
+    panel = build_house_unavailable_panel_spec(tmp_path / "missing-source")
+
+    assert panel["url_path"] == "dashboard-house-v13"
+    assert panel["default_path"] == "/dashboard-house-v13/home"
+    assert panel["availability"] == "unavailable"
+    assert panel["hero"]["availability"] == "unavailable"
+    assert all(not value for value in panel["hero"]["entities"].values())
+    assert [tab["id"] for tab in panel["tabs"]] == [
+        "home",
+        "rooms",
+        "actions",
+        "infrastructure",
+    ]
+    assert panel["hero"]["routes"]["water"] == "/dashboard-water"
+
+
+def test_fail_closed_panel_ignores_an_invalid_mutable_route(tmp_path: Path) -> None:
+    source = _source_tree(tmp_path)
+    manifest_path = source / "manifests" / "house_v13.yaml"
+    manifest = yaml.safe_load(manifest_path.read_text(encoding="utf-8"))
+    manifest["spec"]["dashboard_path"] = "/unexpected-owner"
+    manifest_path.write_text(
+        yaml.safe_dump(manifest, allow_unicode=True, sort_keys=False),
+        encoding="utf-8",
+    )
+
+    panel = build_house_unavailable_panel_spec(source)
+
+    assert panel["url_path"] == "dashboard-house-v13"
+    assert panel["default_path"] == "/dashboard-house-v13/home"
+
+
 def test_house_manifest_declares_integration_owned_specialized_panel() -> None:
     manifest = yaml.safe_load((ROOT / "manifests" / "house_v13.yaml").read_text(encoding="utf-8"))
-    assert manifest["metadata"]["version"] == "1.0.1"
+    assert manifest["metadata"]["version"] == "1.0.2"
     assert manifest["spec"]["specialized_panel"] == {"template": HOUSE_PANEL_TEMPLATE}
     assert HOUSE_PANEL_WEB_COMPONENT == "nikas-house-panel"
 
@@ -105,7 +141,7 @@ def test_house_panel_uses_one_transform_owned_canvas_and_native_chrome() -> None
     frontend = (FRONTEND / "nikas-house-overview.js").read_text(encoding="utf-8")
 
     assert 'const ELEMENT_NAME = "nikas-house-panel"' in frontend
-    assert 'const UI_VERSION = "1.0.1"' in frontend
+    assert 'const UI_VERSION = "1.0.2"' in frontend
     assert frontend.count('class="canvas-viewport"') == 1
     assert frontend.count('class="work-canvas"') == 1
     assert "translate3d(${x}px, ${y}px, 0) scale(${scale})" in frontend
@@ -127,10 +163,31 @@ def test_house_panel_uses_one_transform_owned_canvas_and_native_chrome() -> None
     assert "mdi:arrow-left" not in frontend
     assert frontend.index('<header class="header">') < frontend.index('class="canvas-viewport"')
     assert frontend.index('class="canvas-viewport"') < frontend.index('<div class="bottom">')
-    assert ".tab ha-icon{--mdc-icon-size:28px" in frontend
-    assert "min-height:52px" in frontend
+    assert ".tab ha-icon{--mdc-icon-size:26px" in frontend
+    assert "height:52px" in frontend
     assert "box-shadow:0 7px 20px rgba(23,45,76,.08)" in frontend
-    assert "nikas-house-main-hero{position:absolute;inset:0;display:block;width:auto;height:auto;min-height:0}" in frontend
+    assert "nikas-house-main-hero{position:absolute;inset:12px 12px 20px" in frontend
+    assert "height:100dvh" not in frontend
+    assert "position:fixed" not in frontend
+    assert "grid-template-rows:calc(60px + env(safe-area-inset-top,0px))" in frontend
+    assert "calc(64px + env(safe-area-inset-bottom,0px))" in frontend
+    assert 'this._hass.callService("nikas_house", "refresh")' in frontend
+    assert "window.location.reload" not in frontend
+    assert 'button.className = "rail busy"' in frontend
+    assert 'icon.setAttribute("icon", success ? "mdi:check"' in frontend
+
+
+def test_setup_registers_route_and_refresh_service_before_initial_io() -> None:
+    setup = (ROOT / "custom_components" / "nikas_house" / "__init__.py").read_text(
+        encoding="utf-8"
+    )
+
+    register_service = setup.index(
+        "hass.services.async_register(DOMAIN, SERVICE_REFRESH, async_handle_refresh)"
+    )
+    register_panel = setup.index("await async_register_house_panel(hass, source_root)")
+    first_refresh = setup.index("await coordinator.async_config_entry_first_refresh()")
+    assert register_service < register_panel < first_refresh
 
 
 def test_house_panel_has_no_permanent_scale_controls() -> None:

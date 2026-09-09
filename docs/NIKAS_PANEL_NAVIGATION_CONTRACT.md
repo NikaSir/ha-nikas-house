@@ -1,7 +1,7 @@
-# NikaS Panel Navigation and Return Contract v1.1
+# NikaS Panel Navigation and Return Contract v1.2
 
 **Status:** REQUIRED
-**Canonical owner:** `NikaSir/ha-nikas-house`
+**Canonical owner:** `NikaSir/ha-contract-generated-ui`
 **Applies to:** base panels, specialized panels and every transition between them
 
 This contract defines public panel routes, source hand-off and deterministic return behavior. It is a required companion to the NikaS Specialized Panel UI Standard.
@@ -14,11 +14,12 @@ This contract defines public panel routes, source hand-off and deterministic ret
 - `safe_return_route` is the repository-defined base-panel fallback used after a direct open.
 - Identifiers such as `house.vehicles` are registry keys, not URL paths, and must never be supplied to `history.pushState()`.
 
-The three base panels are:
+The four base panels are:
 
 | Panel | `panel_root` | canonical `entry_route` |
 |---|---|---|
 | House now | `/dashboard-house-v13` | `/dashboard-house-v13/home` |
+| Rooms | `/dashboard-rooms-v11` | `/dashboard-rooms-v11/rooms` |
 | Actions | `/dashboard-actions` | `/dashboard-actions/home` |
 | Infrastructure | `/dashboard-infrastructure` | `/dashboard-infrastructure/overview` |
 
@@ -26,30 +27,25 @@ The specialized-panel registry is:
 
 | Panel | canonical route | `safe_return_route` |
 |---|---|---|
-| ZONT | `/dashboard-zont` | `/dashboard-house-v11/home` |
-| StarLine | `/starline` | `/dashboard-house-v11/home` |
+| Access | `/dashboard-access-v1/home` | `/dashboard-house-v13/home` |
+| ZONT | `/dashboard-zont` | `/dashboard-house-v13/home` |
+| StarLine | `/starline` | `/dashboard-house-v13/home` |
 | S8 OMNI | `/dashboard-s8-omni` | `/dashboard-actions/home` |
 | HO-SC-8W | `/dashboard-irrigation` | `/dashboard-actions/home` |
 | Stark SolarPower | `/dashboard-ups` | `/dashboard-infrastructure/overview` |
 | Keenetic Hero 4G+ | `/dashboard-keenetic` | `/dashboard-infrastructure/overview` |
 | LIDER | `/dashboard-lider` | `/dashboard-infrastructure/overview` |
-| Access | `/dashboard-access-v1/home` | `/dashboard-house-v12/home` |
+| Water Accounting | `/dashboard-water` | `/dashboard-house-v13/home` |
 
 `/dashboard-starline` is invalid. The registered StarLine route is `/starline`.
 
-The canonical routes above were verified in their owner repositories before the v13
-extraction. Their current return allowlists still describe the pre-v13 system. This
-repository emits `/dashboard-house-v13/home` in the one-shot hand-off, but changing
-destination-panel allowlists and safe fallbacks is a separate coordinated rollout
-after the v13 phone acceptance. No destination route is changed by this repository.
-
 ## 2. Ownership and discoverability
 
-- The canonical route registry lives in `ha-nikas-house` and is the single source of truth.
+- The canonical route registry lives in `ha-contract-generated-ui` and is the single source of truth.
 - Every integration repository exposes its registered root, canonical route, safe fallback and contract version in a machine-readable panel contract.
 - One active route has exactly one owner.
 - Every installed specialized panel has at least one visible entry link from the NikaS base interface; a sidebar-only or direct-URL-only panel is non-conforming.
-- Required owners are: House now → ZONT and StarLine; Actions → S8 OMNI and HO-SC-8W; Infrastructure → Stark SolarPower and Keenetic; the Infrastructure power section → LIDER.
+- Required owners are: House now → Access, ZONT, StarLine and Water Accounting; Actions → S8 OMNI and HO-SC-8W; Infrastructure → Stark SolarPower and Keenetic; the Infrastructure power section → LIDER.
 - A `more-info` action does not count as the required entry link.
 
 Legacy `/dashboard-house/*` pages may remain declared detail routes during migration. They are not base-panel source routes and must not be used as a return fallback.
@@ -67,11 +63,13 @@ Only these values are valid:
 
 ```text
 /dashboard-house-v13/home
+/dashboard-rooms-v11/rooms
 /dashboard-actions/home
 /dashboard-infrastructure/overview
 ```
 
 - `/dashboard-house-v13/*` normalizes to `/dashboard-house-v13/home`.
+- `/dashboard-rooms-v11/*` normalizes to `/dashboard-rooms-v11/rooms`.
 - `/dashboard-actions/*` normalizes to `/dashboard-actions/home`.
 - `/dashboard-infrastructure/*` normalizes to `/dashboard-infrastructure/overview`.
 - `/dashboard-house` and `/dashboard-house/*` are never stored as the NikaS base source.
@@ -100,7 +98,7 @@ An invalid `return_to` must not suppress a valid `from`. The accepted route is s
 ## 5. Validation
 
 - Accept same-origin URL paths only.
-- Accept only the three base roots listed in section 1, then normalize them to their canonical entry routes.
+- Accept only the four base roots listed in section 1, then normalize them to their canonical entry routes.
 - Reject external origins, protocol-relative URLs, `javascript:`, `data:`, specialized-panel routes, arbitrary dashboards and legacy `/dashboard-house` routes.
 - Drop query and hash components unless a base-panel contract explicitly declares them canonical.
 - A malformed explicit parameter does not invalidate lower-precedence valid candidates.
@@ -131,7 +129,7 @@ CI must fail when any of the following is false:
 2. every outbound target exists and has exactly one owner;
 3. every specialized panel has a declared visible base entry;
 4. no source or fallback uses `/dashboard-house`, `/dashboard-starline` or a registry identifier;
-5. all three base source routes normalize exactly as specified;
+5. all four base source routes normalize exactly as specified;
 6. both hand-off values are required, validated as a pair and consumed once;
 7. direct open uses the declared safe fallback;
 8. invalid or external routes are rejected;
@@ -149,9 +147,8 @@ A missing, orphaned or mismatched public route is a blocking defect.
 On the primary iPhone viewport verify:
 
 - each declared base card opens its actual specialized route;
-- outbound navigation completes with one tap and without a reload;
-- after the coordinated cross-repository rollout, the title plaque returns to
-  `/dashboard-house-v13/home`, never `/dashboard-house`;
+- the title plaque returns to the same originating base panel;
+- House now returns to `/dashboard-house-v13/home`, never `/dashboard-house`;
 - a direct open returns to the declared safe fallback;
 - refresh, polling, tab changes and peer switches do not alter the destination;
 - Header does not flash, rebuild or lose its click handler.

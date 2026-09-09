@@ -12,8 +12,8 @@
 | Компонент | Значение |
 | --- | --- |
 | Домен | `nikas_house` |
-| Интеграция | `NikaS House` `0.1.2` |
-| Интерфейс | `UI v1.0.1` |
+| Интеграция | `NikaS House` `0.1.3` |
+| Интерфейс | `UI v1.0.2` |
 | Новый маршрут | `/dashboard-house-v13/home` |
 | Сохранённый действующий маршрут | `/dashboard-house-v12/home` |
 | Публикация | ветка `main`, без GitHub Releases |
@@ -62,6 +62,13 @@ House-инвентарь в `/config/contract_generated_ui/inventory/`, выби
 переносятся, существующий целевой инвентарь никогда не перезаписывается. После
 этого панель строится только из `/config/nikas_house`.
 
+Если приватный inventory временно отсутствует или повреждён, интеграция всё
+равно сохраняет принадлежащий ей маршрут и показывает fail-closed состояние
+«Нет данных». Успешная первая проверка источников не является условием
+существования панели. Кнопка Header «Обновить» вызывает только read-only сервис
+`nikas_house.refresh`, не перезагружает страницу и сохраняет вкладку, прокрутку
+и масштаб.
+
 ## Установка тестовой ветки
 
 До принятия PR каталог `custom_components/nikas_house` можно скопировать из
@@ -85,6 +92,7 @@ node --check custom_components/nikas_house/frontend/nikas-house-hero.js
 node --input-type=module --check < custom_components/nikas_house/frontend/nikas-house-overview.js
 node --check custom_components/nikas_house/frontend/nikas-ui.js
 node --check custom_components/nikas_house/frontend/dist/nikas-house-overview.js
+node scripts/check_house_ui_v22.mjs
 ```
 
 Pull request дополнительно запускает Hassfest, HACS validation, проверку

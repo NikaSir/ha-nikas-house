@@ -1,8 +1,8 @@
 # NikaS Engineering Knowledge Base
 
-**Status:** LIVING DOCUMENT
-**Scope:** Home Assistant custom integrations, integration-owned specialized panels, generated/base panels
-**Normative baseline:** NikaS Specialized Panel UI Standard v1.9 + NikaS Panel Navigation Contract
+**Status:** LIVING DOCUMENT  
+**Scope:** Home Assistant custom integrations, integration-owned specialized panels, generated/base panels  
+**Normative baseline:** NikaS Specialized Panel UI Standard v2.2 + NikaS Panel Navigation Contract
 **Purpose:** preserve engineering experience, failure modes, proven practices and acceptance criteria so new work starts from accumulated knowledge rather than from previous implementations.
 
 This file is intentionally broader than the UI standard. The standard defines mandatory behavior. This knowledge base records *why* those rules exist, what repeatedly failed in real devices, and how integration/backend, frontend, history/statistics and release work should be organized.
@@ -89,6 +89,118 @@ Desktop/static screenshots did not reveal inertial scroll, iOS safe-area, synthe
 
 **Correct model:** automated checks are necessary but not sufficient. iPhone Pro Max portrait is the primary acceptance viewport for specialized panels. Regression scenarios are defined before merge.
 
+### 2.9 A common idea is not a common shell
+
+A cross-panel review on phone, tablet landscape and desktop with the Home Assistant sidebar open showed that independently implemented “fixed Header / viewport / Bottom Nav” shells still diverged in top origin, available width, content frame, title centering and bottom-bar attachment. The prose requirements were correct, but phone-first acceptance and approximate geometry allowed every repository to choose a different coordinate system.
+
+**Correct model:** NikaS UI v2.2 binds the shell to the real Home Assistant panel host, defines numeric row sizes and one canonical content frame, and requires the same rectangle checks across phone, tablet and desktop with the Home Assistant menu open and closed. Screenshots of S8, Stark or another panel are visual lineage, not a substitute for the numeric contract.
+
+Five internal destinations are valid. The Keenetic panel has five Bottom Tab destinations and was not the source of this defect; its review finding concerned shell consistency, not tab count.
+
+### 2.10 Peer status and selection are different facts
+
+A selector button answers which peer device is open. Its status lamp answers whether that device is healthy. Recoloring the whole selected button from telemetry mixed these meanings and made selection unstable.
+
+**Correct model:** retain one persistent 9px lamp per peer device with a subtle 3px halo. Green means healthy and current, orange means a documented warning or degraded/reserve state, red means confirmed fault/offline, and gray means unknown or incomplete data. Classification fails closed in the priority fault → warning → healthy → unknown. Selection styling remains independent. Updates patch only lamp color and accessible status text without rebuilding the selector or shell.
+
+
+### 2.11 Peer selector geometry has one visual reference
+
+Different panels implemented the same peer-device selector as a shared segmented pill, independent cards, or compressed labels. Even when all variants remained usable, the changing frame made the NikaS shell look inconsistent and encouraged selection styling to absorb device health.
+
+**Proven reference:** StarLine UI v0.6.8.
+
+**Correct model for two peers:**
+
+- one 52px selector row immediately below Header and outside the work viewport;
+- the row itself has no shared card surface, border, radius or shadow;
+- horizontal inset is at least 12px plus the relevant safe-area inset;
+- two equal-width independent buttons separated by an 8px gap;
+- each button is 44px high, has a 1px border, a 15px radius and the ordinary card surface;
+- content is left aligned: persistent 9px status lamp with a subtle 3px halo, then one-line peer name;
+- the selected button uses primary-colored text, a primary-color border at about 65% strength and a primary-color surface at about 10% strength;
+- device health never recolors the selected surface: health changes only the lamp and accessible status text;
+- long peer names use one-line ellipsis and must not change button height or selector topology.
+
+More than two peers may use another explicitly approved adaptive composition only when the 44px touch target and legible names remain intact. Do not squeeze unreadable labels into the two-peer reference geometry.
+
+---
+
+### 2.12 Refresh needs a visible completion result
+
+The user accepted the green completion check in Climate UI 1.4.17, then reported
+its absence in the vacuum and irrigation panels. Rotation alone shows that a
+request is running; an immediate return to the arrow makes its outcome unclear.
+Another S8 failure showed that a generic loading CSS class could distort the
+Header button. Use a button-specific state class and preserve plaque geometry.
+
+**Correct model:** one mounted button, four states:
+`idle → busy → success/error → idle`. Follow
+[Refresh Action Contract v1.1](NIKAS_REFRESH_ACTION_CONTRACT.md):
+
+- busy begins immediately, lasts at least 900 ms and until the request settles;
+- explicit success shows green `mdi:check` for 1400 ms;
+- failure shows red `mdi:alert-circle-outline` for 1400 ms and an error message;
+- the result interval ends by restoring the arrow, with no layout shift;
+- duplicate requests are blocked while busy; retry during a result clears its old
+  timer so it cannot overwrite the new request;
+- HA updates and tab changes preserve the result and its original deadline;
+- accessible names and static reduced-motion states explain progress/outcome;
+- only an accepted factual sample changes telemetry freshness. A resolved promise
+  carrying `false`, a swallowed exception or partial failure is not success.
+
+Completion presentation was added in
+[S8 OMNI 1.0.4, PR #129](https://github.com/NikaSir/ha-s8-omni/pull/129) and
+[HO-SC-8W 1.0.1, PR #175](https://github.com/NikaSir/ha-ho-sc-8w/pull/175).
+Product tests and browser checks are evidence for the tested cases only; these
+references do not certify the entire contract or replace physical acceptance.
+
+---
+
+### 2.13 Connection plaque and blue corner must use locked tokens
+
+On 2026-09-08 the user again reported that «Связь» changes position, size and
+font, and requested the same strict treatment for the upper-right blue element.
+The source comparison found concrete drift:
+
+| Source inspected | Plaque drift | Blue circle drift |
+|---|---|---|
+| [S8 OMNI `2ed8bac`](https://github.com/NikaSir/ha-s8-omni/tree/2ed8bacb5d3def6141aa118bd6994b036c9f2610) | Proportional width; `min-height:58px`; mobile stacking; text gap 4px | 205px; top −92px / right −70px; theme-dependent blue |
+| [HO-SC-8W `dc4afe2`](https://github.com/NikaSir/ha-ho-sc-8w/tree/dc4afe23ddb14850c289c3145526043d0894441c) | Width 168px; minimum height only; vertical centering against controller image; another font stack | 200px; top −90px / right −65px; another blue |
+| [Climate `b5fae6c`](https://github.com/NikaSir/ha-nikas-climate/tree/b5fae6ce16b905d1e9c1d42d98d49324ece40772) | Proportional width; 58/64px minimum heights; implicit line-height; another font stack | 220px desktop / 188px mobile; different offsets |
+
+A minimum height is not an exact height: the old S8 text, gap, padding and border
+already required about 60.45px. “Use the S8 reference” therefore did not uniquely
+specify the result. CSS appended to historical classes could also miss the
+current production DOM, while a wildcard connection selector deformed the lamp.
+
+The subsequent user comparison selected the compact S8 phone appearance.
+Revision 1.1 restores `168px` width and the phone layout's `13px` top/right
+inset (`14px` from the outer card edge with its `1px` border). The agreed
+`58px` compact height is fixed explicitly, not represented as a measured
+height of the old runtime. Its smaller inner padding reconciles that height
+with the unchanged type sizes; the blue corner tokens remain unchanged.
+
+**Required model:** [Connection Plaque and Blue Corner Contract v1.1](NIKAS_CONNECTION_DECORATION_CONTRACT.md).
+
+- «Связь»: exactly 168×58px border-box; top/right 13px from the card's inner
+  border edge; radius18; padding11/12; lamp10; column gap9; text gap3.
+- One font stack everywhere; main16px/700 with 17px line-height;
+  freshness13px/600 with 14px line-height. No product font inheritance.
+- Blue decoration: circle205px; top−92/right−70; fixed `rgba(3,169,217,0.07)`;
+  no theme-primary input, responsive alternative or status meaning.
+- Preserve both DOM nodes and the anchors through every state update. On narrow
+  cards the title moves below the plaque; the plaque remains at the top right.
+- Replace conflicting CSS at its source. Do not append another patch, shrink
+  text, center the plaque against the image or use wildcard internal selectors.
+- Production acceptance measures rectangles/computed styles for all label
+  lengths, state transitions, peer/tab changes, width boundaries, zoom and themes.
+
+These are intentionally fixed new tokens within UI Standard v2.2. Updating the
+knowledge base does not update the three installed panels. Their conformance
+remains unverified until individual production changes and acceptance evidence
+are recorded; a documentation/hash check is not runtime evidence.
+
 ---
 
 ## 3. Integration architecture
@@ -120,6 +232,15 @@ For polled integrations:
 - failed polls do not erase the last good sample, but mark it stale;
 - expensive work is not duplicated by each entity or panel subscriber;
 - listeners receive already-normalized domain state.
+
+### 3.3.1 Panel existence is application infrastructure
+
+A configured panel route is registered before fallible device or cloud I/O. Device
+reachability changes the panel's content to an explicit unavailable/no-data state; it
+does not remove the application surface. First-refresh helpers may still govern
+entity setup or config-entry retry, but never route existence. Registration,
+collision handling, retries and unload ownership follow
+`NIKAS_PANEL_LIFECYCLE_CONTRACT.md`.
 
 ### 3.4 Unknown and unavailable are first-class states
 
@@ -222,11 +343,13 @@ Add writes last. Every write path receives separate safety, busy-state and failu
 
 ### 5.1 Header
 
-Follow v1.9 exactly. The center title plaque is the sole standard return control. No browser `history.back()`, no separate arrow or “Назад”. Left rail is HA system menu; right rail has at most one panel-global action.
+Follow v2.2 exactly. The center title plaque is the sole standard return control. No browser `history.back()`, no separate arrow or “Назад”. Left rail is HA system menu; right rail has at most one panel-global action. All three tracks are positioned inside the Home Assistant panel host, never against the browser viewport.
 
 ### 5.2 Bottom navigation
 
 3–5 equal destinations, fixed outside the work viewport, MDI icons through `ha-icon`, minimum touch target 52 px. A short page must not pull the bar upward; a long page must scroll its final control above it.
+
+The bar spans the panel host on phone, tablet and desktop. Five destinations are conforming; a sixth requires a secondary navigation level. An active state may change color and background only, never item size, column width or bar height.
 
 ### 5.3 Page hierarchy
 
@@ -422,6 +545,9 @@ Required checks should cover:
 - navigation contract;
 - typography envelope;
 - forbidden legacy patterns (`history.back()`, routine full `innerHTML`, old fixed-layer topology, etc.).
+- host-bound shell geometry and the absence of `100vw` or hard-coded Home Assistant sidebar offsets;
+- numeric Header/work/Bottom Nav rectangle parity across the mandatory v2.2 viewport matrix;
+- unchanged chrome coordinates during work scroll, overscroll and Home Assistant sidebar toggles.
 
 ### 11.2 Dynamic regression gates
 
@@ -432,7 +558,9 @@ Automate where practical:
 - period history calls are single-flight/cached;
 - max history concurrency is enforced;
 - command duplicate submission is blocked;
-- unknown/unavailable data does not become healthy.
+- refresh success/error glyphs last 1400 ms, survive telemetry patches and cannot be reset by an old timer during a newer request;
+- unknown/unavailable data does not become healthy;
+- the two-peer selector keeps the StarLine reference geometry (52px row, 44px independent buttons, 8px gap) and patches status lamps independently of selection.
 
 ### 11.3 Real-device acceptance
 
@@ -449,8 +577,11 @@ Primary phone acceptance checks:
 - synthetic click suppressed after pinch;
 - telemetry updates do not flicker;
 - images/background do not reflash;
+- peer selector geometry and selection/status separation remain identical on phone, tablet and desktop;
 - history period switching does not freeze;
 - write confirmation and busy/error states behave correctly.
+
+Phone acceptance is followed by tablet portrait/landscape and desktop checks with the Home Assistant sidebar expanded and collapsed. A panel is not shell-complete when only its phone portrait layout has passed.
 
 ---
 
@@ -486,6 +617,9 @@ The following patterns are considered known regressions unless a new design prov
 - meaningful operational text below 12 px;
 - generic “Online” when transport/freshness distinction is required;
 - status represented by color only;
+- refresh silently returning to the arrow without showing its result, or displaying a green check after a failed/partial request;
+- a generic page-loading CSS class applied to a Header action and changing its geometry;
+- a shared outer pill around peer-device buttons, or selection styling driven by device health;
 - missing/unavailable rendered green or as zero;
 - guessed entity IDs;
 - write controls that claim success before state confirmation;
@@ -507,7 +641,7 @@ A NikaS integration/panel is complete only when all of the following are true:
 
 - factual data contract is explicit;
 - command policy is explicit;
-- UI v1.9 shell is compliant;
+- UI v2.2 shell is compliant across the mandatory viewport matrix;
 - live updates are incremental and stable;
 - startup has no blank application frame;
 - mobile scroll/zoom/safe-area behavior is accepted;

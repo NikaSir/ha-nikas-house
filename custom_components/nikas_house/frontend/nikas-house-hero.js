@@ -194,8 +194,10 @@ class NikasHouseHero extends HTMLElement {
   }
 
   _security(ids) {
-    const alarm = this._countOn(ids);
-    const bad = this._countUnavailable(ids);
+    const source = Array.isArray(ids) ? ids : [];
+    if (source.length === 0) return { label: "Нет данных", tone: "grey", icon: "mdi:shield-alert-outline" };
+    const alarm = this._countOn(source);
+    const bad = this._countUnavailable(source);
     if (alarm > 0) return { label: `Тревога ${alarm}`, tone: "red", icon: "mdi:shield-alert" };
     if (bad > 0) return { label: "Внимание", tone: "orange", icon: "mdi:shield-alert-outline" };
     return { label: "В норме", tone: "green", icon: "mdi:shield-check" };
@@ -337,15 +339,19 @@ class NikasHouseHero extends HTMLElement {
     const accessRoute = routes.access || routes.open;
     const asset = this._config.asset || DEFAULT_ASSET;
     const security = this._security(entities.safety);
-    const motion = this._countOn(entities.motion);
-    const motionBad = this._countUnavailable(entities.motion);
-    const lights = this._countOn(entities.lights);
-    const lightBad = this._countUnavailable(entities.lights);
+    const motionIds = Array.isArray(entities.motion) ? entities.motion : [];
+    const lightIds = Array.isArray(entities.lights) ? entities.lights : [];
+    const windowIds = Array.isArray(entities.windows) ? entities.windows : [];
+    const doorIds = Array.isArray(entities.doors) ? entities.doors : [];
+    const motion = this._countOn(motionIds);
+    const motionBad = this._countUnavailable(motionIds);
+    const lights = this._countOn(lightIds);
+    const lightBad = this._countUnavailable(lightIds);
     const climate = this._climate(entities.climate);
-    const windows = this._countOn(entities.windows);
-    const windowBad = this._countUnavailable(entities.windows);
-    const doors = this._countOn(entities.doors);
-    const doorBad = this._countUnavailable(entities.doors);
+    const windows = this._countOn(windowIds);
+    const windowBad = this._countUnavailable(windowIds);
+    const doors = this._countOn(doorIds);
+    const doorBad = this._countUnavailable(doorIds);
     const gate = this._access(entities.access?.sectional, "Ворота", "gate");
     const entrance = this._access(entities.access?.entrance, "Входная");
     const weather = this._weather(entities.weather);
@@ -355,10 +361,14 @@ class NikasHouseHero extends HTMLElement {
     const internet = this._internet(entities.internet);
     const heating = this._heating(entities.heating);
 
-    const motionTone = motionBad > 0 ? "orange" : motion > 0 ? "yellow" : "green";
-    const lightsTone = lightBad > 0 ? "orange" : lights > 0 ? "yellow" : "green";
-    const windowTone = windows > 0 ? "yellow" : windowBad > 0 ? "orange" : "green";
-    const doorTone = doors > 0 ? "yellow" : doorBad > 0 ? "orange" : "green";
+    const motionTone = motionIds.length === 0 ? "grey" : motionBad > 0 ? "orange" : motion > 0 ? "yellow" : "green";
+    const lightsTone = lightIds.length === 0 ? "grey" : lightBad > 0 ? "orange" : lights > 0 ? "yellow" : "green";
+    const windowTone = windowIds.length === 0 ? "grey" : windows > 0 ? "yellow" : windowBad > 0 ? "orange" : "green";
+    const doorTone = doorIds.length === 0 ? "grey" : doors > 0 ? "yellow" : doorBad > 0 ? "orange" : "green";
+    const motionValue = motionIds.length === 0 ? "—" : String(motion);
+    const lightsValue = lightIds.length === 0 ? "—" : String(lights);
+    const windowValue = windowIds.length === 0 ? "—" : String(windows);
+    const doorValue = doorIds.length === 0 ? "—" : String(doors);
     const now = new Date();
     const time = now.toLocaleTimeString("ru-RU", { hour: "2-digit", minute: "2-digit" });
     const date = now.toLocaleDateString("ru-RU", { day: "numeric", month: "long", year: "numeric" });
@@ -392,10 +402,10 @@ class NikasHouseHero extends HTMLElement {
     </style>
     <ha-card><div class="hero" aria-label="${escapeHtml(this._config.title || "Дом сейчас")}">
       <div class="top-grid">
-        ${this._card("mdi:window-open-variant","Окна",String(windows),windowTone,routes.open)}
-        ${this._card("mdi:door-open","Двери",String(doors),doorTone,accessRoute)}
-        ${this._card("mdi:lightbulb-group","Свет",String(lights),lightsTone,routes.lights)}
-        ${this._card("mdi:motion-sensor","Движение",String(motion),motionTone,routes.activity)}
+        ${this._card("mdi:window-open-variant","Окна",windowValue,windowTone,routes.open)}
+        ${this._card("mdi:door-open","Двери",doorValue,doorTone,accessRoute)}
+        ${this._card("mdi:lightbulb-group","Свет",lightsValue,lightsTone,routes.lights)}
+        ${this._card("mdi:motion-sensor","Движение",motionValue,motionTone,routes.activity)}
         ${this._card("mdi:thermostat","Климат",climate.value,climate.tone,routes.climate)}
       </div>
       <div class="info-grid">
@@ -409,7 +419,7 @@ class NikasHouseHero extends HTMLElement {
         <rect class="zone ${gate.tone}" x="112" y="986" width="260" height="188" rx="14"></rect>
         <rect class="zone ${entrance.tone}" x="724" y="974" width="128" height="200" rx="14"></rect>
       </svg>
-      <button class="callout window-callout ${windowTone}" data-route="${escapeHtml(routes.open)}" type="button"><b>Окна</b><span>${escapeHtml(windows)} открыто</span></button>
+      <button class="callout window-callout ${windowTone}" data-route="${escapeHtml(routes.open)}" type="button"><b>Окна</b><span>${escapeHtml(windowIds.length === 0 ? "Нет данных" : `${windows} открыто`)}</span></button>
       <button class="callout gate-callout ${gate.tone}" data-route="${escapeHtml(accessRoute)}" type="button"><b>${escapeHtml(gate.label)}</b><span>${escapeHtml(gate.detail)}</span></button>
       <button class="callout door-callout ${entrance.tone}" data-route="${escapeHtml(accessRoute)}" type="button"><b>${escapeHtml(entrance.label)}</b><span>${escapeHtml(entrance.detail)}</span></button>
       <div class="utilities">

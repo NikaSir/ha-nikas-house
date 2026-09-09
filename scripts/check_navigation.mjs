@@ -50,7 +50,7 @@ const source = fs.readFileSync(
 );
 vm.runInThisContext(source, { filename: "nikas-ui.js" });
 
-assert.equal(window.NikasHouseNavigation.contractVersion, "1.1");
+assert.equal(window.NikasHouseNavigation.contractVersion, "1.2");
 assert.equal(
   window.NikasHouseNavigation.navigate("/dashboard-access-v1/home"),
   true,

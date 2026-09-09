@@ -2,9 +2,12 @@
 
 from __future__ import annotations
 
+import json
 import logging
 from pathlib import Path
 from typing import TYPE_CHECKING, Any, Callable
+
+import yaml
 
 from .const import (
     DOMAIN,
@@ -109,6 +112,81 @@ def build_house_panel_spec(source_root: Path) -> dict[str, Any]:
     }
 
 
+def build_house_unavailable_panel_spec(source_root: Path) -> dict[str, Any]:
+    """Build a fail-closed shell that does not depend on private inventory."""
+    candidates = (source_root, Path(__file__).parent / "bundled_sources")
+    last_error: Exception | None = None
+    for candidate in candidates:
+        try:
+            manifest = _house_manifest(candidate)
+            navigation = compile_navigation_registry(candidate)
+            candidate_spec = manifest.get("spec", {})
+            candidate_views = candidate_spec.get("views", [])
+            if candidate_spec.get("dashboard_path") != f"/{HOUSE_PANEL_URL_PATH}":
+                raise ValueError("fail-closed panel source declares an unexpected route")
+            if (
+                not isinstance(candidate_views, list)
+                or len(candidate_views) != 1
+                or not isinstance(candidate_views[0], dict)
+                or candidate_views[0].get("path") != "home"
+            ):
+                raise ValueError("fail-closed panel source requires the House home view")
+            tabs = navigation.get("global_tabs")
+            if not isinstance(tabs, list) or not 3 <= len(tabs) <= 5:
+                raise ValueError("fail-closed panel source requires 3–5 global tabs")
+            break
+        except (
+            OSError,
+            ValueError,
+            RuntimeError,
+            json.JSONDecodeError,
+            yaml.YAMLError,
+        ) as err:
+            last_error = err
+    else:
+        raise ValueError("packaged House manifest/navigation are unavailable") from last_error
+
+    metadata = manifest.get("metadata", {})
+    spec = manifest.get("spec", {})
+    views = spec.get("views", [])
+    view = views[0] if views and isinstance(views[0], dict) else {}
+    dashboard_path = spec.get("dashboard_path", f"/{HOUSE_PANEL_URL_PATH}")
+    routes = spec.get("navigation", {}) if isinstance(spec.get("navigation"), dict) else {}
+    return {
+        "id": metadata.get("id", "nikas_house_v13"),
+        "title": view.get("title", "Дом сейчас"),
+        "sidebar_title": metadata.get("title", "Дом"),
+        "sidebar_icon": "mdi:home-outline",
+        "url_path": str(dashboard_path).removeprefix("/"),
+        "view_path": view.get("path", "home"),
+        "default_path": f"{dashboard_path}/{view.get('path', 'home')}",
+        "availability": "unavailable",
+        "hero": {
+            "title": "Дом сейчас",
+            "standalone": True,
+            "availability": "unavailable",
+            "entities": {
+                "safety": [],
+                "openings": [],
+                "windows": [],
+                "doors": [],
+                "motion": [],
+                "lights": [],
+                "climate": [],
+                "cameras": [],
+                "weather": None,
+                "power": [],
+                "water": None,
+                "internet": None,
+                "heating": {},
+                "access": {},
+            },
+            "routes": routes,
+        },
+        "tabs": navigation.get("global_tabs", []),
+    }
+
+
 def select_house_panel_route(
     panel_exists: Callable[[str], bool],
     preferred_url_path: str,
@@ -143,7 +221,31 @@ async def async_register_house_panel(hass: HomeAssistant, source_root: Path) -> 
     """Register House beside an existing YAML owner without replacing it."""
     from homeassistant.components import frontend, panel_custom
 
-    panel_spec = await hass.async_add_executor_job(build_house_panel_spec, source_root)
+    domain_data = hass.data.setdefault(DOMAIN, {})
+    owned_path = domain_data.get(HOUSE_PANEL_PATH)
+    if (
+        owned_path == HOUSE_PANEL_URL_PATH
+        and frontend.async_panel_exists(hass, HOUSE_PANEL_URL_PATH)
+    ):
+        return
+
+    try:
+        panel_spec = await hass.async_add_executor_job(build_house_panel_spec, source_root)
+    except (
+        OSError,
+        ValueError,
+        RuntimeError,
+        json.JSONDecodeError,
+        yaml.YAMLError,
+    ) as err:
+        _LOGGER.warning(
+            "House inventory is unavailable; registering fail-closed panel content: %s",
+            err,
+        )
+        panel_spec = await hass.async_add_executor_job(
+            build_house_unavailable_panel_spec,
+            source_root,
+        )
     preferred_url_path = panel_spec["url_path"]
     url_path = select_house_panel_route(
         lambda candidate: frontend.async_panel_exists(hass, candidate),
@@ -193,6 +295,7 @@ __all__ = [
     "async_register_house_panel",
     "async_unregister_house_panel",
     "build_house_panel_spec",
+    "build_house_unavailable_panel_spec",
     "materialize_house_panel_spec",
     "select_house_panel_route",
 ]

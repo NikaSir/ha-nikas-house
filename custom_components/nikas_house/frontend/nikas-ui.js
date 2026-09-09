@@ -1,5 +1,5 @@
 (() => {
-  const BOOTSTRAP_KEY = "__nikas_house_navigation_v1_0_1_b001";
+  const BOOTSTRAP_KEY = "__nikas_house_navigation_v1_0_2_b001";
   if (window[BOOTSTRAP_KEY]) return;
   window[BOOTSTRAP_KEY] = true;
 
@@ -89,7 +89,7 @@
 
   // Navigation only: never inject, replace or hide legacy YAML dashboard DOM.
   window.NikasHouseNavigation = Object.freeze({
-    contractVersion: "1.1",
+    contractVersion: "1.2",
     navigate: navigateWithSourceHandoff,
   });
 })();
