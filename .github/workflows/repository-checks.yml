@@ -48,7 +48,7 @@ jobs:
                   print(f'YAML OK {path}')
           PY
 
-      - name: Enforce NikaS UI standard v1.9
+      - name: Enforce NikaS UI standard v2.2
         run: python scripts/check_nikas_ui_standard.py
 
       - name: Validate frontend JavaScript syntax
@@ -63,6 +63,7 @@ jobs:
         run: |
           ./scripts/build_frontend_bundles.sh
           git diff --exit-code -- custom_components/nikas_house/frontend/dist/nikas-house-overview.js
+          node scripts/check_house_ui_v22.mjs
 
       - name: Smoke-test House hero runtime
         run: |

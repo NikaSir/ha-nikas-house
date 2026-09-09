@@ -28,6 +28,7 @@ async def async_setup_entry(
     from homeassistant.const import Platform
 
     from .const import (
+        COORDINATOR,
         DOMAIN,
         FRONTEND_DIRECTORY,
         FRONTEND_STATIC_REGISTERED,
@@ -38,6 +39,7 @@ async def async_setup_entry(
         HOUSE_PANEL_FILENAME,
         HOUSE_PANEL_STATIC_PATH,
         SOURCE_DIRECTORY,
+        SERVICE_REFRESH,
         UI_BUNDLE_FILENAME,
         UI_BUNDLE_MODULE_URL,
         UI_BUNDLE_STATIC_PATH,
@@ -108,14 +110,25 @@ async def async_setup_entry(
     add_extra_js_url(hass, UI_BUNDLE_MODULE_URL)
     add_extra_js_url(hass, HOUSE_HERO_MODULE_URL)
 
+    coordinator = NikasHouseCoordinator(hass, entry)
+    domain_data[COORDINATOR] = coordinator
+    entry.runtime_data = coordinator
+
+    if not hass.services.has_service(DOMAIN, SERVICE_REFRESH):
+
+        async def async_handle_refresh(_call) -> None:
+            active = hass.data.get(DOMAIN, {}).get(COORDINATOR)
+            if active is not None:
+                await active.async_request_refresh()
+
+        hass.services.async_register(DOMAIN, SERVICE_REFRESH, async_handle_refresh)
+
     try:
         await async_register_house_panel(hass, source_root)
     except (OSError, ValueError, RuntimeError, json.JSONDecodeError, yaml.YAMLError) as err:
         _LOGGER.warning("Cannot register specialized NikaS House panel: %s", err)
 
-    coordinator = NikasHouseCoordinator(hass, entry)
     await coordinator.async_config_entry_first_refresh()
-    entry.runtime_data = coordinator
     await hass.config_entries.async_forward_entry_setups(
         entry,
         (Platform.SENSOR, Platform.BUTTON),
@@ -131,7 +144,13 @@ async def async_unload_entry(
     from homeassistant.components.frontend import remove_extra_js_url
     from homeassistant.const import Platform
 
-    from .const import HOUSE_HERO_MODULE_URL, UI_BUNDLE_MODULE_URL
+    from .const import (
+        COORDINATOR,
+        DOMAIN,
+        HOUSE_HERO_MODULE_URL,
+        SERVICE_REFRESH,
+        UI_BUNDLE_MODULE_URL,
+    )
     from .house_panel import async_unregister_house_panel
 
     unloaded = await hass.config_entries.async_unload_platforms(
@@ -140,6 +159,9 @@ async def async_unload_entry(
     )
     if unloaded:
         async_unregister_house_panel(hass)
+        hass.data.get(DOMAIN, {}).pop(COORDINATOR, None)
+        if hass.services.has_service(DOMAIN, SERVICE_REFRESH):
+            hass.services.async_remove(DOMAIN, SERVICE_REFRESH)
         for module_url in (UI_BUNDLE_MODULE_URL, HOUSE_HERO_MODULE_URL):
             try:
                 remove_extra_js_url(hass, module_url)
