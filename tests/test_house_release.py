@@ -10,7 +10,7 @@ PACKAGE = ROOT / "custom_components" / "nikas_house"
 
 def test_release_is_house_only() -> None:
     manifest = json.loads((PACKAGE / "manifest.json").read_text(encoding="utf-8"))
-    assert manifest["version"] == "0.1.3"
+    assert manifest["version"] == "0.1.4"
     assert set(manifest["dependencies"]) == {"frontend", "http"}
     assert manifest["after_dependencies"] == ["lovelace"]
 
@@ -59,11 +59,10 @@ def test_global_frontend_does_not_modify_legacy_yaml_dashboards() -> None:
     assert "createElement" not in bundle
     assert "appendChild" not in bundle
     assert "innerHTML" not in bundle
-    assert 'return "/dashboard-house-v13/home"' in bundle
-    assert '"/dashboard-access-v1"' in bundle
-    assert '"/dashboard-water"' in bundle
-    assert '"/dashboard-water-accounting"' not in bundle
-    assert 'return "/dashboard-rooms-v11/rooms"' in bundle
+    assert "sessionStorage" not in bundle
+    assert "document.referrer" not in bundle
+    assert 'contractVersion: "1.3"' in bundle
+
 
 
 def test_setup_registers_only_house_panel() -> None:

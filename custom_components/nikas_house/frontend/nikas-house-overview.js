@@ -1,8 +1,8 @@
-import "/nikas_house/frontend/nikas-house-hero.js?build=v1_0_2_b001";
+import "/nikas_house/frontend/nikas-house-hero.js?build=v1_0_3_b001";
 
 (() => {
   const ELEMENT_NAME = "nikas-house-panel";
-  const UI_VERSION = "1.0.2";
+  const UI_VERSION = "1.0.3";
   if (customElements.get(ELEMENT_NAME)) return;
 
   const MIN_SCALE = 0.75;
@@ -205,9 +205,9 @@ import "/nikas_house/frontend/nikas-house-hero.js?build=v1_0_2_b001";
           @keyframes nikas-house-refresh-spin{to{transform:rotate(360deg)}}
           .rail:focus-visible,.tab:focus-visible{outline:2px solid var(--primary-color,#03a9f4);outline-offset:1px}
           .rail ha-icon{--mdc-icon-size:25px;width:25px;height:25px}
-          .heading{justify-self:center;width:min(360px,100%);height:52px;min-width:0;padding:5px 14px;border:1px solid color-mix(in srgb,var(--primary-color,#03a9f4) 24%,var(--divider-color,#dfe3e8));border-radius:16px;background:color-mix(in srgb,var(--primary-color,#03a9f4) 5%,var(--card-background-color,#fff));box-shadow:0 5px 16px rgba(23,45,76,.06);color:inherit;display:grid;place-content:center;text-align:center;line-height:1.08}
+          .heading{font:inherit;cursor:pointer;justify-self:center;width:min(360px,100%);height:52px;min-width:0;padding:5px 14px;border:1px solid color-mix(in srgb,var(--primary-color,#03a9f4) 24%,var(--divider-color,#dfe3e8));border-radius:16px;background:color-mix(in srgb,var(--primary-color,#03a9f4) 5%,var(--card-background-color,#fff));box-shadow:0 5px 16px rgba(23,45,76,.06);color:inherit;display:grid;place-content:center;text-align:center;line-height:1.08}
           .heading strong,.heading span{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-          .heading strong{font-size:23px;font-weight:800;letter-spacing:-.02em}
+          .heading:focus-visible{outline:2px solid var(--primary-color);outline-offset:2px}.heading strong{font-size:23px;font-weight:800;letter-spacing:-.02em}
           .heading span{margin-top:3px;font-size:14px;font-weight:560;line-height:1.2;color:var(--secondary-text-color,#6b7280)}
           .canvas-viewport{position:relative;min-width:0;min-height:0;overflow-x:hidden;overflow-y:auto;overscroll-behavior-x:none;overscroll-behavior-y:none;touch-action:pan-y;background:var(--primary-background-color,#f4f6f8)}
           .canvas-viewport.zoomed{overflow:hidden;overscroll-behavior:none;touch-action:none;user-select:none;-webkit-user-select:none}
@@ -232,7 +232,7 @@ import "/nikas_house/frontend/nikas-house-hero.js?build=v1_0_2_b001";
         <div class="app">
           <header class="header">
             <button class="rail" id="menu" type="button" aria-label="Меню Home Assistant"><ha-icon icon="mdi:menu"></ha-icon></button>
-            <div class="heading"><strong>Дом сейчас</strong><span>Состояние · UI v${UI_VERSION}</span></div>
+            <button class="heading" id="heading" type="button" aria-label="Дом сейчас — перейти к обзору"><strong>Дом сейчас</strong><span>Состояние · UI v${UI_VERSION}</span></button>
             <button class="rail" id="refresh" type="button" aria-label="Обновить"><ha-icon icon="mdi:refresh"></ha-icon></button>
           </header>
           <main class="canvas-viewport" aria-label="Рабочая область панели Дом">
@@ -249,6 +249,7 @@ import "/nikas_house/frontend/nikas-house-hero.js?build=v1_0_2_b001";
           composed: true,
         }));
       };
+      this.shadowRoot.getElementById("heading").onclick = () => navigate("/home/overview");
       this.shadowRoot.getElementById("refresh").onclick = () => this._refresh();
     }
 
