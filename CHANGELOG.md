@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.1.4 · UI 1.0.3
+
+The House title is a keyboard-accessible button that opens `/home/overview`. Navigation no longer saves a source panel as a return destination.
+
 ## 0.1.3 — 2026-09-09
 
 - Панель и локальный валидатор переведены на NikaS UI Standard 2.2 и

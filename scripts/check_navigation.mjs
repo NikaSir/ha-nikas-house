@@ -50,7 +50,7 @@ const source = fs.readFileSync(
 );
 vm.runInThisContext(source, { filename: "nikas-ui.js" });
 
-assert.equal(window.NikasHouseNavigation.contractVersion, "1.2");
+assert.equal(window.NikasHouseNavigation.contractVersion, "1.3");
 assert.equal(
   window.NikasHouseNavigation.navigate("/dashboard-access-v1/home"),
   true,
@@ -59,9 +59,9 @@ assert.deepEqual(pushed, ["/dashboard-access-v1/home"]);
 assert.deepEqual(events, ["location-changed"]);
 assert.equal(
   storage.get("nikas.specialized.source_route.v1"),
-  "/dashboard-house-v13/home",
+  undefined,
 );
-assert.match(storage.get("nikas.specialized.source_route_at.v1"), /^\d+$/);
+assert.equal(storage.size, 0, "navigation must not save source authority");
 
 window.location.pathname = "/dashboard-house-v13/home";
 storage.clear();

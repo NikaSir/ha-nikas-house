@@ -58,6 +58,7 @@ class FakeStatus {
 class FakeShadowRoot {
   constructor() {
     this.menu = new FakeButton();
+    this.heading = new FakeButton();
     this.refresh = new FakeButton();
     this.status = new FakeStatus();
     this._innerHTML = "";
@@ -73,6 +74,7 @@ class FakeShadowRoot {
 
   getElementById(id) {
     if (id === "menu") return this.menu;
+    if (id === "heading") return this.heading;
     if (id === "refresh") return this.refresh;
     return null;
   }
@@ -152,6 +154,14 @@ panel.hass = {
     assert.equal(service, "refresh");
   },
 };
+
+const navigationTargets = [];
+window.NikasHouseNavigation = { navigate: path => navigationTargets.push(path) };
+window.location.search = "?return_to=/dashboard-actions/home";
+assert.equal(typeof panel.shadowRoot.heading.onclick, "function", "House title must be actionable");
+assert.match(panel.shadowRoot.innerHTML, /<button[^>]*id="heading"[^>]*type="button"/);
+panel.shadowRoot.heading.onclick();
+assert.deepEqual(navigationTargets, ["/home/overview"], "House title must navigate one level to overview");
 
 const successfulRefresh = panel._refresh();
 await flushMicrotasks();
