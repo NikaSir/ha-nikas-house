@@ -655,7 +655,7 @@ if (!window.customCards.some((card) => card.type === ELEMENT_NAME)) {
           .heading span{margin-top:3px;font-size:14px;font-weight:560;line-height:1.2;color:var(--secondary-text-color,#6b7280)}
           .canvas-viewport{position:relative;min-width:0;min-height:0;overflow-x:hidden;overflow-y:auto;overscroll-behavior-x:none;overscroll-behavior-y:none;touch-action:pan-y;background:var(--primary-background-color,#f4f6f8)}
           .canvas-viewport.zoomed{overflow:hidden;overscroll-behavior:none;touch-action:none;user-select:none;-webkit-user-select:none}
-          .work-canvas{position:relative;width:100%;height:100%;min-width:0;min-height:100%;transform-origin:0 0;transform:translate3d(0px,0px,0) scale(1);will-change:transform;contain:layout style;visibility:visible}
+          .work-canvas{position:absolute;inset:0;width:100%;min-width:0;min-height:0;transform-origin:0 0;transform:translate3d(0px,0px,0) scale(1);will-change:transform;contain:layout style;visibility:visible}
           .work-content{position:relative;width:100%;height:100%;max-width:1280px;min-height:100%;margin:0 auto}
           .work-canvas.ready{visibility:visible}
           nikas-house-main-hero{position:absolute;inset:12px 12px 20px;display:block;width:auto;height:auto;min-height:0}
