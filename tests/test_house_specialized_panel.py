@@ -132,7 +132,7 @@ def test_fail_closed_panel_ignores_an_invalid_mutable_route(tmp_path: Path) -> N
 
 def test_house_manifest_declares_integration_owned_specialized_panel() -> None:
     manifest = yaml.safe_load((ROOT / "manifests" / "house_v13.yaml").read_text(encoding="utf-8"))
-    assert manifest["metadata"]["version"] == "1.0.3-beta001"
+    assert manifest["metadata"]["version"] == "1.0.3-beta002"
     assert manifest["spec"]["specialized_panel"] == {"template": HOUSE_PANEL_TEMPLATE}
     assert HOUSE_PANEL_WEB_COMPONENT == "nikas-house-panel"
 
@@ -141,7 +141,7 @@ def test_house_panel_uses_one_transform_owned_canvas_and_native_chrome() -> None
     frontend = (FRONTEND / "nikas-house-overview.js").read_text(encoding="utf-8")
 
     assert 'const ELEMENT_NAME = "nikas-house-panel"' in frontend
-    assert 'const UI_VERSION = "1.0.3-beta001"' in frontend
+    assert 'const UI_VERSION = "1.0.3-beta002"' in frontend
     assert frontend.count('class="canvas-viewport"') == 1
     assert frontend.count('class="work-canvas"') == 1
     assert "translate3d(${x}px, ${y}px, 0) scale(${scale})" in frontend

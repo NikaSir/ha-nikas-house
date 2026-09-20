@@ -1,5 +1,5 @@
 (() => {
-  const BOOTSTRAP_KEY = "__nikas_house_navigation_v1_0_3_beta001_b001";
+  const BOOTSTRAP_KEY = "__nikas_house_navigation_v1_0_3_beta002_b001";
   if (window[BOOTSTRAP_KEY]) return;
   window[BOOTSTRAP_KEY] = true;
 

@@ -38,7 +38,7 @@
     "custom_components/nikas_house/frontend/nikas-house-hero.js",
     "custom_components/nikas_house/frontend/nikas-house-overview.js"
   ],
-  "ui_version": "1.0.3",
+  "ui_version": "1.0.3-beta002",
   "web_component": "nikas-house-panel",
   "bundle_contract": {
     "autonomous": true,
