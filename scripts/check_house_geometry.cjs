@@ -12,6 +12,14 @@ const path = require('node:path');
       const errors = [];
       page.on('pageerror', error => errors.push(error.message));
       await page.setContent('<style>html,body{margin:0;height:100%}ha-card{display:block}</style>');
+      await page.evaluate(() => {
+        customElements.define('ha-card', class extends HTMLElement {
+          constructor() {
+            super();
+            this.attachShadow({mode:'open'}).innerHTML = '<style>:host{display:block}</style><slot></slot>';
+          }
+        });
+      });
       await page.addScriptTag({content: fs.readFileSync(path.join(__dirname, '../custom_components/nikas_house/frontend/dist/nikas-house-overview.js'), 'utf8')});
       await page.evaluate(() => {
         const panel = document.createElement('nikas-house-panel');
