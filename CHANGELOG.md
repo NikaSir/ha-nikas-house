@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.1.5-beta001 · UI 1.0.3-beta001
+
+- Исправлена пустая рабочая область при сбое или гонке frontend-инициализации.
+- Beta-версия использует явную prerelease-нумерацию для интеграции и интерфейса.
+
+
 ## 0.1.4 · UI 1.0.3
 
 The House title is a keyboard-accessible button that opens `/home/overview`. Navigation no longer saves a source panel as a return destination.
