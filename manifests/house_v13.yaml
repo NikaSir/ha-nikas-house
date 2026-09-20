@@ -3,7 +3,7 @@ kind: PanelManifest
 metadata:
   id: nikas_house_v13
   title: Дом
-  version: 1.0.3-beta001
+  version: 1.0.3-beta002
   description: House-only specialized overview; all detail dashboards remain external navigation targets.
 spec:
   dashboard_path: /dashboard-house-v13

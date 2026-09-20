@@ -446,7 +446,7 @@ if (!window.customCards.some((card) => card.type === ELEMENT_NAME)) {
 
 (() => {
   const ELEMENT_NAME = "nikas-house-panel";
-  const UI_VERSION = "1.0.3-beta001";
+  const UI_VERSION = "1.0.3-beta002";
   if (customElements.get(ELEMENT_NAME)) return;
 
   const MIN_SCALE = 0.75;
@@ -655,8 +655,8 @@ if (!window.customCards.some((card) => card.type === ELEMENT_NAME)) {
           .heading span{margin-top:3px;font-size:14px;font-weight:560;line-height:1.2;color:var(--secondary-text-color,#6b7280)}
           .canvas-viewport{position:relative;min-width:0;min-height:0;overflow-x:hidden;overflow-y:auto;overscroll-behavior-x:none;overscroll-behavior-y:none;touch-action:pan-y;background:var(--primary-background-color,#f4f6f8)}
           .canvas-viewport.zoomed{overflow:hidden;overscroll-behavior:none;touch-action:none;user-select:none;-webkit-user-select:none}
-          .work-canvas{position:relative;width:100%;min-width:0;min-height:100%;transform-origin:0 0;transform:translate3d(0px,0px,0) scale(1);will-change:transform;contain:layout style;visibility:visible}
-          .work-content{position:relative;width:100%;max-width:1280px;min-height:100%;margin:0 auto}
+          .work-canvas{position:relative;width:100%;height:100%;min-width:0;min-height:100%;transform-origin:0 0;transform:translate3d(0px,0px,0) scale(1);will-change:transform;contain:layout style;visibility:visible}
+          .work-content{position:relative;width:100%;height:100%;max-width:1280px;min-height:100%;margin:0 auto}
           .work-canvas.ready{visibility:visible}
           nikas-house-main-hero{position:absolute;inset:12px 12px 20px;display:block;width:auto;height:auto;min-height:0}
           .bottom{z-index:20;padding:6px calc(6px + env(safe-area-inset-right,0px)) calc(6px + env(safe-area-inset-bottom,0px)) calc(6px + env(safe-area-inset-left,0px));background:var(--card-background-color,var(--ha-card-background,#fff));border-top:1px solid var(--divider-color,rgba(0,0,0,.12));box-shadow:0 -5px 22px rgba(23,45,76,.08)}

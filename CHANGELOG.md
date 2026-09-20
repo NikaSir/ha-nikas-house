@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.1.5-beta002 · UI 1.0.3-beta002
+
+- Give the transformed canvas and content wrapper definite viewport-relative heights.
+- Add Chromium/WebKit geometry checks across the five standard viewport sizes.
+- WebKit previously sized the scene beyond the work viewport; physical iPhone acceptance remains required for the reported blank screen.
+
 ## 0.1.5-beta001 · UI 1.0.3-beta001
 
 - Исправлена пустая рабочая область при сбое или гонке frontend-инициализации.
