@@ -1,11 +1,11 @@
 // Run with Playwright installed: node scripts/check_house_geometry.cjs
-const { chromium } = require('playwright');
+const { chromium, webkit } = require('playwright');
 const fs = require('node:fs');
 const assert = require('node:assert/strict');
 const path = require('node:path');
 
 (async () => {
-  const browser = await chromium.launch({headless: true});
+  const browser = await (process.env.HOUSE_BROWSER === 'webkit' ? webkit : chromium).launch({headless: true});
   try {
     for (const [width, height] of [[430,932], [932,430], [768,1024], [1024,768], [1440,900]]) {
       const page = await browser.newPage({viewport: {width, height}});

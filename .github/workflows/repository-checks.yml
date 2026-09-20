@@ -68,8 +68,9 @@ jobs:
       - name: Browser-test House scene geometry
         run: |
           npm install --prefix "$RUNNER_TEMP/house-browser" playwright@1.58.2
-          "$RUNNER_TEMP/house-browser/node_modules/.bin/playwright" install --with-deps chromium
+          "$RUNNER_TEMP/house-browser/node_modules/.bin/playwright" install --with-deps chromium webkit
           NODE_PATH="$RUNNER_TEMP/house-browser/node_modules" node scripts/check_house_geometry.cjs
+          HOUSE_BROWSER=webkit NODE_PATH="$RUNNER_TEMP/house-browser/node_modules" node scripts/check_house_geometry.cjs
 
       - name: Smoke-test House hero runtime
         run: |
