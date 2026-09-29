@@ -81,6 +81,7 @@
         "model": {"type": "string"},
         "model_id": {"type": "string"},
         "via_device_id": {"type": "string", "minLength": 1},
+        "parent_device_id": {"type": "string", "minLength": 1},
         "entry_type": {"type": "string"},
         "disabled": {"type": "boolean"}
       }

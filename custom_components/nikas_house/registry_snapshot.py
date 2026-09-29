@@ -7,6 +7,7 @@ import json
 import os
 from dataclasses import dataclass
 from datetime import datetime, timezone
+from itertools import chain
 from pathlib import Path
 from typing import TYPE_CHECKING, Any, Iterable, Mapping
 
@@ -147,14 +148,29 @@ def capture_registry_snapshot(hass: HomeAssistant) -> dict[str, Any]:
             entity["unit_of_measurement"] = entry.unit_of_measurement
         entities.append(entity)
 
+    # Older HA releases expose a mapping; current HA exposes a collection.
+    # Do not call mapping methods on the current deprecation wrapper.
+    main_devices = device_registry.devices
+    if isinstance(main_devices, Mapping):
+        main_devices = main_devices.values()
+    main_devices_by_id = {entry.id: entry for entry in main_devices}
+    child_devices = getattr(device_registry, "child_devices", ())
+
     devices: list[dict[str, Any]] = []
-    for entry in device_registry.devices.values():
+    for entry in chain(main_devices_by_id.values(), child_devices):
         device: dict[str, Any] = {
             "device_id": entry.id,
             "disabled": entry.disabled_by is not None,
         }
-        if entry.area_id is not None:
-            device["area_id"] = entry.area_id
+        parent_id = getattr(entry, "parent_device_id", None)
+        area_id = entry.area_id
+        if parent_id is not None:
+            device["parent_device_id"] = parent_id
+            parent = main_devices_by_id.get(parent_id)
+            if area_id is None and parent is not None:
+                area_id = parent.area_id
+        if area_id is not None:
+            device["area_id"] = area_id
         device_labels = _labels(getattr(entry, "labels", None))
         if device_labels:
             device["labels"] = device_labels
@@ -162,17 +178,20 @@ def capture_registry_snapshot(hass: HomeAssistant) -> dict[str, Any]:
             device["name_by_user"] = entry.name_by_user
         if entry.name is not None:
             device["name"] = entry.name
-        if entry.manufacturer is not None:
-            device["manufacturer"] = entry.manufacturer
-        if entry.model is not None:
-            device["model"] = entry.model
-        if getattr(entry, "model_id", None) is not None:
-            device["model_id"] = entry.model_id
-        if entry.via_device_id is not None:
-            device["via_device_id"] = entry.via_device_id
-        entry_type = getattr(entry, "entry_type", None)
-        if entry_type is not None:
-            device["entry_type"] = str(getattr(entry_type, "value", entry_type))
+        # ChildDeviceEntry has no hardware metadata or via-device relation.
+        # Even getattr with a default would invoke HA's deprecated child shim.
+        if parent_id is None:
+            if entry.manufacturer is not None:
+                device["manufacturer"] = entry.manufacturer
+            if entry.model is not None:
+                device["model"] = entry.model
+            if getattr(entry, "model_id", None) is not None:
+                device["model_id"] = entry.model_id
+            if entry.via_device_id is not None:
+                device["via_device_id"] = entry.via_device_id
+            entry_type = getattr(entry, "entry_type", None)
+            if entry_type is not None:
+                device["entry_type"] = str(getattr(entry_type, "value", entry_type))
         devices.append(device)
 
     areas: list[dict[str, Any]] = []
