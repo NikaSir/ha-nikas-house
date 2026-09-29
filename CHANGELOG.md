@@ -1,5 +1,12 @@
 # Changelog
 
+## Unreleased
+
+- Capture both main and child devices using the supported device collection API. Legacy mapping registries remain supported.
+- Preserve `parent_device_id` in v2 snapshots and resolve a child's effective `area_id` from its parent when no explicit area is set. Entity area overrides remain unchanged.
+- Extend both snapshot schema copies with the optional parent relation. Update snapshot producers and validators together; older strict validators do not accept this new optional field.
+- Add regression coverage for child topology, inherited and overridden areas, missing parents, deterministic snapshots, and legacy HA registries.
+
 ## 0.1.5-beta002 · UI 1.0.3-beta002
 
 - Give the transformed canvas and content wrapper definite viewport-relative heights.
