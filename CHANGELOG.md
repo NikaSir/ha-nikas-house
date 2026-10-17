@@ -1,3 +1,8 @@
+## Repository audit maintenance — 2026-10-17
+
+- Remove the Home Assistant-owned PyYAML requirement from the integration manifest; retain project test/build dependencies.
+- Product/UI versions and equipment commands are unchanged; target-device acceptance remains separate.
+
 # Changelog
 
 ## Unreleased
